@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head><meta charset="UTF-8">
+<title>促銷頁面編輯器</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;font-size:14px}
+#app{display:flex;height:100vh}
+#panel{width:56%;background:#f2f2f2;border-right:2px solid #ccc;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;flex-shrink:0}
+#pview{flex:1;overflow-y:auto;padding:12px;background:#ddd}
+.sl{font-size:13px;font-weight:700;color:#333;border-bottom:2px solid #bbb;padding-bottom:3px;margin-bottom:4px}
+#gc-toggle{width:100%;padding:11px 14px;background:#4a4a4a;color:#fff;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:700;text-align:left}
+#gc-toggle.open{border-radius:10px 10px 0 0}
+#gc-body{display:none;background:#fff;border:2px solid #4a4a4a;border-top:none;border-radius:0 0 10px 10px;padding:12px}
+.gc-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.gc-row{display:flex;flex-direction:column;gap:3px;background:#f9f9f9;border:1px solid #e0e0e0;border-radius:6px;padding:6px}
+.gc-lbl{font-size:11px;font-weight:700;color:#555}
+.gc-top{display:flex;align-items:center;gap:5px}
+.gc-sw{width:24px;height:24px;border-radius:4px;border:1.5px solid #bbb;cursor:pointer;padding:0;flex-shrink:0}
+.gc-hex{width:76px;font-size:12px;border:1.5px solid #bbb;border-radius:4px;padding:3px 5px;background:#fff;color:#222;font-family:monospace}
+.gc-ps{display:flex;gap:3px;flex-wrap:wrap;margin-top:2px}
+.ps-dot{width:16px;height:16px;border-radius:3px;cursor:pointer;border:1px solid rgba(0,0,0,.2);flex-shrink:0}
+.ps-dot:hover{transform:scale(1.3)}
+.theme-btn{flex:1;padding:9px 4px;border:2px solid rgba(0,0,0,0.15);border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;color:#fff;transition:transform .15s,box-shadow .15s,opacity .15s;letter-spacing:.3px}
+.bcard{border-radius:10px;overflow:hidden;margin-bottom:8px;border:2.5px solid #aaa}
+.bcard.dov{outline:3px dashed #4466ff}
+.bcard.type-title{border-color:#2e7d4f}.bcard.type-text{border-color:#1a56a0}.bcard.type-table{border-color:#b45309}.bcard.type-terms{border-color:#9d2a5e}.bcard.type-image{border-color:#6b21a8}.bcard.type-plaintext{border-color:#0891b2}
+.bhdr{display:flex;align-items:center;gap:6px;padding:9px 11px;cursor:pointer;user-select:none}
+.type-title .bhdr{background:#2e7d4f}.type-text .bhdr{background:#1a56a0}.type-table .bhdr{background:#b45309}.type-terms .bhdr{background:#9d2a5e}.type-image .bhdr{background:#6b21a8}.type-plaintext .bhdr{background:#0891b2}
+.type-linkbtn .bhdr{background:#c2410c}
+.bbadge{font-size:11px;padding:2px 6px;border-radius:4px;font-weight:700;background:rgba(255,255,255,.35);color:#fff;flex-shrink:0;text-shadow:0 1px 3px rgba(0,0,0,.8);letter-spacing:.3px}
+.bname{flex:1;font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px rgba(0,0,0,.9);letter-spacing:.2px}
+.hbtn{background:rgba(255,255,255,.2);border:none;cursor:pointer;color:#fff;font-size:13px;padding:2px 6px;border-radius:4px;flex-shrink:0}
+.hbtn:hover{background:rgba(255,255,255,.4)}
+.hbtn.del{background:rgba(180,30,30,.4)}.hbtn.del:hover{background:rgba(180,30,30,.7)}
+.bbody{padding:12px;background:#fff;display:flex;flex-direction:column;gap:8px}
+.bbody.closed{display:none}
+.flbl{font-size:12px;font-weight:700;color:#555;margin-bottom:2px}
+.finp{width:100%;border:1.5px solid #bbb;border-radius:6px;padding:6px 8px;font-size:14px;background:#fafafa;color:#222}
+.finp:focus{outline:none;border-color:#777}
+textarea.finp{resize:vertical;min-height:68px;line-height:1.5}
+.th-inp{border:1.5px solid #8fba9f;border-radius:5px;padding:4px 5px;font-size:12px;font-weight:600;background:#e8f4ee;color:#1a4d2e;text-align:center;width:100%}
+.td-inp{border:1.5px solid #bbb;border-radius:5px;padding:4px 5px;font-size:12px;background:#fafafa;color:#222;text-align:center;width:100%}
+.td-y{background:#fffce8;color:#7a5c00;border-color:#e6c800}
+.smsel{font-size:12px;padding:3px 5px;border-radius:5px;border:1.5px solid #bbb;background:#fafafa;color:#333}
+.smnum{width:42px;text-align:center;font-size:12px;padding:3px 5px;border-radius:5px;border:1.5px solid #bbb;background:#fafafa;color:#333}
+.add-btn{font-size:12px;padding:4px 10px;border-radius:6px;cursor:pointer;border:1.5px solid #bbb;background:#f0f0f0;color:#444;font-weight:500}
+.add-btn:hover{background:#e0e0e0}
+.row-del{border:1.5px solid #f1948a;border-radius:5px;cursor:pointer;color:#c0392b;font-size:12px;padding:2px 6px;background:rgba(200,40,40,.1);flex-shrink:0}
+.row-del:hover{background:rgba(200,40,40,.3)}
+.add-bar{display:flex;gap:6px;flex-wrap:wrap}
+.abbtn{font-size:13px;padding:5px 11px;border-radius:8px;cursor:pointer;border:2px solid #bbb;background:#fff;color:#333;font-weight:700}
+.abbtn:hover{background:#f0f0f0}
+.abbtn.at{border-color:#2e7d4f;color:#2e7d4f}.abbtn.ax{border-color:#1a56a0;color:#1a56a0}.abbtn.al{border-color:#b45309;color:#b45309}.abbtn.am{border-color:#9d2a5e;color:#9d2a5e}.abbtn.ai{border-color:#6b21a8;color:#6b21a8}.abbtn.ap{border-color:#0891b2;color:#0891b2}
+.outbtn{background:#222;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;color:#fff}
+.outbtn:hover{background:#444}
+#hout{display:none;background:#fff;border:1.5px solid #ccc;border-radius:8px;padding:8px;font-size:10px;font-family:monospace;overflow-x:auto;white-space:pre;color:#444;max-height:120px;overflow-y:auto}
+.rich-tb{display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:5px;background:#f0f0f0;border-radius:5px;border:1px solid #ddd;margin-bottom:3px}
+.rtbtn{font-size:11px;padding:2px 6px;border-radius:4px;border:1.5px solid #bbb;background:#fff;cursor:pointer;color:#333;font-weight:600}
+.rtbtn:hover{background:#eee}
+.rich-area{width:100%;border:1.5px solid #bbb;border-radius:6px;padding:6px 8px;font-size:14px;background:#fafafa;color:#222;min-height:68px;overflow-y:auto;line-height:1.5}
+.rich-area:focus{outline:none;border-color:#777}
+.ccbox{flex:1;min-width:90px;border:1px solid #e0e0e0;border-radius:6px;padding:6px;background:#f9f9f9;display:flex;flex-direction:column;gap:4px}
+.ccbox-t{font-size:11px;font-weight:700;color:#555}
+.cc-r{display:flex;align-items:center;gap:3px}
+.cc-lbl{font-size:10px;color:#777;width:22px;flex-shrink:0}
+.cc-sw{width:20px;height:20px;border-radius:3px;border:1.5px solid #bbb;cursor:pointer;padding:0;flex-shrink:0}
+.cc-hex{width:68px;font-size:11px;border:1.5px solid #bbb;border-radius:4px;padding:2px 4px;font-family:monospace;background:#fff;color:#222}
+.cc-sel{font-size:11px;padding:2px 4px;border-radius:4px;border:1.5px solid #bbb;background:#fff;color:#333;width:100%;margin-top:1px}
+.img-zone{border:2px dashed #bbb;border-radius:8px;padding:16px;text-align:center;cursor:pointer;background:#fafafa}
+.img-zone:hover,.img-zone.dov{border-color:#6b21a8;background:#f5f0ff}
+.img-prev{width:100%;border-radius:6px;max-height:150px;object-fit:contain;display:block;background:#eee;margin-top:6px}
+.imp-box{background:#fff;border:2px solid #1a56a0;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px}
+#imp-area{background:#fafafa;border:1.5px solid #bbb;border-radius:6px;padding:6px;font-size:11px;font-family:monospace;color:#222;width:100%;resize:vertical;min-height:70px}
+
+/* x-span-panel inputs: no inherited white shadow */
+.x-span-panel input[type=number] {
+  text-shadow: none !important;
+  background: #fff !important;
+  color: #222 !important;
+}
+.x-hspan-panel input[type=number] {
+  text-shadow: none !important;
+  background: #fff !important;
+  color: #222 !important;
+}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="panel">
+  <div class="sl">全域顏色設定</div>
+  <button id="gc-toggle" type="button">▶ 顏色設定（點擊展開）</button>
+  <div id="theme-bar" style="display:flex;gap:6px"></div>
+  <div id="gc-body"><div class="gc-grid" id="gc-grid"></div></div>
+  <div class="sl">區塊列表（拖曳排序）</div>
+  <div id="BL"></div>
+  <div class="sl">新增區塊</div>
+  <div class="add-bar" id="add-bar"></div>
+  <div class="sl" style="margin-top:4px">輸出 / 匯入</div>
+  <div style="display:flex;gap:6px">
+    <button class="outbtn" id="btn-out" style="flex:1">輸出 HTML</button>
+    <button class="outbtn" id="btn-cp" style="flex:1;background:#555">複製 HTML</button>
+  </div>
+  <div id="hout"></div>
+  <div class="imp-box">
+    <div class="flbl">匯入 HTML（貼入後點解析）</div>
+    <textarea id="imp-area" placeholder="貼上 HTML..."></textarea>
+    <button class="outbtn" id="btn-imp" style="background:#1a56a0">解析並載入</button>
+    <div id="imp-msg" style="font-size:12px;color:#888"></div>
+  </div>
+</div>
+<div id="pview"><div id="prev" style="max-width:100%;margin:auto"></div></div>
+</div>
+
+<script>
+/* ── 顏色折疊 ── */
+var gcOpen = false;
+var gcToggleBtn = document.getElementById('gc-toggle');
+var gcBody = document.getElementById('gc-body');
+gcToggleBtn.addEventListener('click', function() {
+  gcOpen = !gcOpen;
+  gcBody.style.display = gcOpen ? 'block' : 'none';
+  gcToggleBtn.textContent = (gcOpen ? '▼' : '▶') + ' 顏色設定（點擊' + (gcOpen ? '收合' : '展開') + '）';
+  gcToggleBtn.className = gcOpen ? 'open' : '';
+});
+
+/* ── 工具 ── */
+var _uid = 0;
+function nid() { return ++_uid; }
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── 全域顏色 ── */
+var GCP = ['#000000','#ffffff','#003b24','#006b3f','#00ff84','#ffe600','#ff4444','#169b75','#106b4f','#1a56a0','#b45309','#cc44cc'];
+var GC = {
+  outerBorder:'#00d26a', outerBg:'#000000',
+  titleBg:'#006b3f', titleBorder:'#00ff84', titleText:'#ffffff',
+  textBg:'#008c4a', textBorder:'#00ff84', textMain:'#ffffff', textAccent:'#ffe600',
+  tableBg:'#169b75', tableBorder:'#00ff84',
+  tableHeaderBg:'#106b4f', tableHeaderText:'#ffffff',
+  tableCellBg:'#ffffff', tableCellText:'#003b24',
+  tableValueText:'#ffe600', separatorColor:'#00ff84'
+};
+var GCM = [
+  {k:'outerBorder',l:'外框線'},{k:'outerBg',l:'外框背景'},
+  {k:'titleBg',l:'標題背景'},{k:'titleBorder',l:'標題框線'},{k:'titleText',l:'標題文字'},
+  {k:'textBg',l:'文字背景'},{k:'textBorder',l:'文字框線'},{k:'textMain',l:'文字主色'},{k:'textAccent',l:'強調色'},
+  {k:'tableBg',l:'表格外層背景'},{k:'tableBorder',l:'表格外層框線'},
+  {k:'tableHeaderBg',l:'表頭背景'},{k:'tableHeaderText',l:'表頭文字'},
+  {k:'tableCellBg',l:'儲存格底色'},{k:'tableCellText',l:'儲存格文字'},
+  {k:'tableValueText',l:'數值色'},{k:'separatorColor',l:'分隔線'}
+];
+
+/* ── 主題預設 ── */
+var THEMES = {
+  green: {
+    label:'🟢 綠', bg:'#2e7d4f',
+    GC:{outerBorder:'#00d26a',outerBg:'#000000',titleBg:'#006b3f',titleBorder:'#00ff84',titleText:'#ffffff',textBg:'#008c4a',textBorder:'#00ff84',textMain:'#ffffff',textAccent:'#ffe600',tableBg:'#169b75',tableBorder:'#00ff84',tableHeaderBg:'#106b4f',tableHeaderText:'#ffffff',tableCellBg:'#ffffff',tableCellText:'#003b24',tableValueText:'#ffe600',separatorColor:'#00ff84'}
+  },
+  pink: {
+    label:'🌸 粉', bg:'#e91e8c',
+    GC:{outerBorder:'#fce4ec',outerBg:'#fff0f5',titleBg:'#f48fb1',titleBorder:'#fce4ec',titleText:'#ffffff',textBg:'#f06292',textBorder:'#fce4ec',textMain:'#ffffff',textAccent:'#ffe600',tableBg:'#f48fb1',tableBorder:'#fce4ec',tableHeaderBg:'#e91e8c',tableHeaderText:'#ffffff',tableCellBg:'#ffffff',tableCellText:'#e91e8c',tableValueText:'#ffe600',separatorColor:'#fce4ec'}
+  },
+  blue: {
+    label:'💙 藍', bg:'#2233cc',
+    GC:{outerBorder:'#4466ff',outerBg:'#ffffff',titleBg:'#2233cc',titleBorder:'#4466ff',titleText:'#ffffff',textBg:'#0d1a5e',textBorder:'#4466ff',textMain:'#ffffff',textAccent:'#ff6a00',tableBg:'#0a0a2e',tableBorder:'#4466ff',tableHeaderBg:'#12127a',tableHeaderText:'#ffffff',tableCellBg:'#ffffff',tableCellText:'#0d0d3b',tableValueText:'#ff6a00',separatorColor:'#4466ff'}
+  }
+};
+
+function applyTheme(key) {
+  var t = THEMES[key]; if(!t) return;
+  Object.keys(t.GC).forEach(function(k){ GC[k] = t.GC[k]; });
+  /* 連結按鈕區塊跟著主題更新顏色 */
+  blocks.forEach(function(b){
+    if(b.type !== 'linkbtn') return;
+    b.data.bgColor    = GC.titleBg;
+    b.data.textColor  = GC.titleText;
+    b.data.glowColor  = GC.titleBorder;
+    b.data.shadowColor= GC.titleBorder;
+  });
+  renderGColors();
+  buildPreview();
+  renderBlocks();
+  document.querySelectorAll('.theme-btn').forEach(function(b){
+    var active = b.dataset.theme === key;
+    b.style.opacity = active ? '1' : '0.55';
+    b.style.transform = active ? 'scale(1.06)' : 'scale(1)';
+    b.style.boxShadow = active ? '0 0 0 3px rgba(0,0,0,0.3)' : 'none';
+  });
+}
+
+function renderGColors() {
+  var g = document.getElementById('gc-grid'); g.innerHTML = '';
+  GCM.forEach(function(m) {
+    var box = document.createElement('div'); box.className = 'gc-row';
+    var lbl = document.createElement('div'); lbl.className = 'gc-lbl'; lbl.textContent = m.l;
+    var top = document.createElement('div'); top.className = 'gc-top';
+    var sw = document.createElement('input'); sw.type='color'; sw.className='gc-sw'; sw.value=GC[m.k];
+    var hex = document.createElement('input'); hex.className='gc-hex'; hex.value=GC[m.k]; hex.maxLength=7;
+    var ps = document.createElement('div'); ps.className = 'gc-ps';
+    GCP.forEach(function(c) {
+      var d = document.createElement('div'); d.className='ps-dot'; d.style.background=c; d.title=c;
+      d.addEventListener('click', (function(key,s,h,v){ return function(){ GC[key]=v; s.value=v; h.value=v; buildPreview(); }; })(m.k,sw,hex,c));
+      ps.appendChild(d);
+    });
+    sw.addEventListener('input', (function(key,h){ return function(){ GC[key]=sw.value; h.value=sw.value; buildPreview(); }; })(m.k,hex));
+    hex.addEventListener('input', (function(key,s){ return function(){ if(/^#[0-9a-fA-F]{6}$/.test(hex.value)){ GC[key]=hex.value; s.value=hex.value; buildPreview(); } }; })(m.k,sw));
+    top.appendChild(sw); top.appendChild(hex);
+    box.appendChild(lbl); box.appendChild(top); box.appendChild(ps);
+    g.appendChild(box);
+  });
+}
+
+/* ── 儲存格顏色 ── */
+var CC5 = [
+  {l:'(預設)',v:''},{l:'黑色',v:'#000000'},{l:'白色',v:'#ffffff'},
+  {l:'深綠',v:'#003b24'},{l:'黃色',v:'#ffe600'},{l:'墨綠',v:'#106b4f'}
+];
+
+function makeCCBox(row, ci, label) {
+  var box = document.createElement('div'); box.className = 'ccbox';
+  var t = document.createElement('div'); t.className='ccbox-t'; t.textContent=label; box.appendChild(t);
+  var slbl = document.createElement('div'); slbl.className='cc-lbl'; slbl.style.cssText='width:auto;margin-bottom:2px'; slbl.textContent='文字樣式';
+  box.appendChild(slbl);
+  var ssel = document.createElement('select'); ssel.className='cc-sel';
+  var curSk = (row.sk && row.sk[ci]) || 'custom';
+  CELL_STYLES.forEach(function(s){
+    var op=document.createElement('option'); op.value=s.k; op.textContent=s.l;
+    if(s.k===curSk) op.selected=true;
+    ssel.appendChild(op);
+  });
+  var customWrap = document.createElement('div');
+  customWrap.style.display = curSk==='custom' ? 'flex' : 'none';
+  customWrap.style.flexDirection = 'column'; customWrap.style.gap = '3px'; customWrap.style.marginTop='3px';
+  var sw = document.createElement('input'); sw.type='color'; sw.className='cc-sw';
+  sw.value = row.fg[ci] || '#ffe600';
+  var hex = document.createElement('input'); hex.className='cc-hex';
+  hex.value = row.fg[ci]||''; hex.placeholder='#rrggbb'; hex.maxLength=7;
+  var cr = document.createElement('div'); cr.className='cc-r';
+  var clbl = document.createElement('span'); clbl.className='cc-lbl'; clbl.textContent='文字色';
+  cr.appendChild(clbl); cr.appendChild(sw); cr.appendChild(hex);
+  customWrap.appendChild(cr);
+  var bgRow = document.createElement('div'); bgRow.className='cc-r';
+  var bglbl = document.createElement('span'); bglbl.className='cc-lbl'; bglbl.textContent='底色';
+  var bgSw = document.createElement('input'); bgSw.type='color'; bgSw.className='cc-sw';
+  bgSw.value = row.bg[ci]||'#ffffff';
+  var bgHex = document.createElement('input'); bgHex.className='cc-hex';
+  bgHex.value = row.bg[ci]||''; bgHex.placeholder='#rrggbb'; bgHex.maxLength=7;
+  var bgSel = document.createElement('select'); bgSel.className='cc-sel';
+  CC5.forEach(function(o){ var op=document.createElement('option'); op.value=o.v; op.textContent=o.l; if(o.v===(row.bg[ci]||''))op.selected=true; bgSel.appendChild(op); });
+  bgRow.appendChild(bglbl); bgRow.appendChild(bgSw); bgRow.appendChild(bgHex);
+  function syncBg(v){ row.bg[ci]=v; bgSw.value=v||'#ffffff'; bgHex.value=v||''; Array.from(bgSel.options).forEach(function(o){o.selected=(o.value===v);}); if(!v)bgSel.options[0].selected=true; buildPreview(); }
+  bgSw.addEventListener('input',function(){ syncBg(bgSw.value); });
+  bgHex.addEventListener('input',function(){ if(/^#[0-9a-fA-F]{6}$/.test(bgHex.value)) syncBg(bgHex.value); });
+  bgSel.addEventListener('change',function(){ syncBg(bgSel.value); });
+  var bgSection = document.createElement('div'); bgSection.style.cssText='display:flex;flex-direction:column;gap:2px;margin-top:3px';
+  bgSection.appendChild(bgRow); bgSection.appendChild(bgSel);
+  function syncFg(v){ row.fg[ci]=v; sw.value=v||'#ffe600'; hex.value=v||''; buildPreview(); }
+  sw.addEventListener('input',function(){ syncFg(sw.value); });
+  hex.addEventListener('input',function(){ if(/^#[0-9a-fA-F]{6}$/.test(hex.value)) syncFg(hex.value); });
+  ssel.addEventListener('change', function(){
+    var k = ssel.value;
+    if(!row.sk) row.sk=Array(row.cells.length).fill('custom');
+    row.sk[ci]=k;
+    customWrap.style.display = k==='custom' ? 'flex' : 'none';
+    buildPreview();
+  });
+  box.appendChild(ssel);
+  box.appendChild(customWrap);
+  box.appendChild(bgSection);
+  return box;
+}
+
+/* ── 區塊資料 ── */
+var blocks = [
+  {id:nid(),type:'title',open:false,data:{text:'How to Participate?'}},
+  {id:nid(),type:'text',open:false,data:{html:'Select <span style="color:#ffe600;">[ Slots &amp; Crash Game Welcome Bonus ]</span> and make a minimum <span style="color:#ffe600;">300 BDT</span> deposit on the deposit page to participate.',align:'left'}},
+  {id:nid(),type:'title',open:false,data:{text:'Requirements'}},
+  {id:nid(),type:'table',open:false,data:{title:'PROMOTION',ttype:'kv',ncols:2,cols:['',''],rows:[
+    {cells:['GAME TYPES','SLOTS & CRASH'],bg:['',''],fg:['',''],sk:['custom','yellow-shadow']},
+    {cells:['REPETITIONS','ONE-TIME'],bg:['',''],fg:['',''],sk:['custom','yellow-shadow']},
+    {cells:['BONUS %','288%'],bg:['',''],fg:['',''],sk:['custom','yellow-shadow']},
+    {cells:['MIN DEPOSIT','\u09f3300'],bg:['',''],fg:['',''],sk:['custom','yellow-shadow']},
+    {cells:['MAX BONUS','\u09f320,000'],bg:['',''],fg:['',''],sk:['custom','yellow-shadow']},
+    {cells:['TURNOVER','15X'],bg:['',''],fg:['',''],sk:['custom','yellow-shadow']}
+  ]}},
+  {id:nid(),type:'table',open:false,data:{title:'DEPOSIT BONUS',ttype:'grid',ncols:3,cols:['DEPOSIT COUNT','BONUS %','MAX BONUS'],rows:[
+    {cells:['1st','68%','\u09f38,000'],bg:['','',''],fg:['','',''],sk:['custom','custom','yellow-shadow']},
+    {cells:['2nd','100%','\u09f310,000'],bg:['','',''],fg:['','',''],sk:['custom','custom','yellow-shadow']},
+    {cells:['3rd','120%','\u09f312,000'],bg:['','',''],fg:['','',''],sk:['custom','custom','yellow-shadow']}
+  ]}},
+  {id:nid(),type:'title',open:false,data:{text:'Example of Turnover Calculation'}},
+  {id:nid(),type:'text',open:false,data:{html:'Calculation Example: Deposit 300 BDT + get 300 BDT(100%) bonus.<br/><br/>Your Turnover target = <span style="color:#ffe600;">(300+300)\xd715=9,000 BDT</span>',align:'left'}},
+  {id:nid(),type:'title',open:false,data:{text:'Terms & Conditions'}},
+  {id:nid(),type:'terms',open:false,data:{text:"This promotion is available for all new BDT players.\nThis promotion is eligible for Slots\u3001Crash games only.\nThis promotion cannot be used in conjunction with any other promotional offer.\nPlayers who create multiple or fraudulent accounts will be disqualified.\nDeposit and Bonus has 15x Wagering Requirement before withdrawal.\nSome products are excluded. Refer here: https://ozwin365guide.com/\nOZWin365 reserves the right to modify or cancel this promotion.\nOZWin365's Terms & Conditions apply.",align:'left'}}
+];
+
+var TL={title:'標題',text:'文字區塊',table:'表格',terms:'條款列表',image:'圖片',plaintext:'無框文字',linkbtn:'連結按鈕'};
+
+var CELL_STYLES = [
+  {k:'yellow-shadow', l:'🟡 黃字＋陰影',  fg:'#ffe600', shadow:true},
+  {k:'white-shadow',  l:'⚪ 白字＋陰影',  fg:'#ffffff', shadow:true},
+  {k:'white-plain',   l:'○ 白字無陰影',  fg:'#ffffff', shadow:false},
+  {k:'dark-plain',    l:'● 深綠字無陰影',fg:'#003b24', shadow:false},
+  {k:'black-plain',   l:'⬛ 黑字無陰影', fg:'#000000', shadow:false},
+  {k:'custom',        l:'✏ 自訂顏色',    fg:'',        shadow:false}
+];
+
+function getCellStyleKey(row, ci) { return (row.sk && row.sk[ci]) || 'custom'; }
+function makeRow(n){ return {cells:Array(n).fill(''),bg:Array(n).fill(''),fg:Array(n).fill(''),sk:Array(n).fill('custom')}; }
+function ensureRow(r,n){
+  while(r.cells.length<n){r.cells.push('');r.bg.push('');r.fg.push('');(r.sk=r.sk||[]).push('custom');}
+  r.cells.length=n;r.bg.length=n;r.fg.length=n;
+  if(!r.sk){r.sk=Array(n).fill('custom');}else{while(r.sk.length<n)r.sk.push('custom');r.sk.length=n;}
+}
+function getName(b){
+  if(b.type==='table') return b.data.title||'表格';
+  if(b.type==='image') return b.data.src?'圖片(已上傳)':'圖片(未上傳)';
+  if(b.type==='linkbtn') return '🔗 '+(b.data.text||'連結按鈕');
+  return (b.type==='text'||b.type==='plaintext'?b.data.html||'':b.data.text||'').replace(/<[^>]+>/g,'').slice(0,20)||'(空白)';
+}
+function addBlock(type){
+  var d;
+  if(type==='title') d={text:'新標題',mode:'standard'};
+  else if(type==='text') d={html:'文字內容',align:'left'};
+  else if(type==='table') d={title:'TABLE',ttype:'grid',ncols:2,cols:['欄位1','欄位2'],rows:[makeRow(2),makeRow(2)]};
+  else if(type==='terms') d={text:'條款一\n條款二',align:'left'};
+  else if(type==='plaintext') d={html:'無框文字內容',color:'#ffffff',fontSize:'16',fontFamily:'Arial',align:'left',lineHeight:'1.7',bold:false,italic:false,underline:false,strike:false,shadow:false,shadowColor:'#000000',shadowBlur:4,shadowX:2,shadowY:2,textBg:false,textBgColor:'#000000',textBgPad:6,textBgRadius:6,border:false,borderColor:'#ffffff',borderWidth:2,borderRadius:8,borderPad:8,glow:false,glowColor:'#00ff84',glowSize:10};
+  else if(type==='linkbtn') d={text:'按鈕文字',url:'https://',align:'center',bgColor:GC.titleBg||'#006b3f',textColor:GC.titleText||'#ffffff',fontSize:'18',fontWeight:'bold',borderRadius:'30',paddingV:'14',paddingH:'32',shadow:true,shadowColor:GC.titleBorder||'#00ff84',glow:true,glowColor:GC.titleBorder||'#00ff84',width:'auto'};
+  else d={src:'',alt:'',width:'100%',align:'center',link:'',borderRadius:'0'};
+  blocks.push({id:nid(),type:type,open:true,data:d}); renderBlocks();
+}
+function delBlock(id){ if(!confirm('確定刪除？'))return; blocks=blocks.filter(function(b){return b.id!==id;}); renderBlocks(); }
+function moveBlock(id,dir){ var i=blocks.findIndex(function(b){return b.id===id;}),j=i+dir; if(j<0||j>=blocks.length)return; var t=blocks[i];blocks[i]=blocks[j];blocks[j]=t; renderBlocks(); }
+function togBlock(id){ var b=blocks.find(function(b){return b.id===id;}); if(b){b.open=!b.open;renderBlocks();} }
+function resizeCols(id,n){
+  var b=blocks.find(function(b){return b.id===id;}); if(!b)return;
+  n=Math.max(1,Math.min(6,n)); b.data.ncols=n;
+  while(b.data.cols.length<n) b.data.cols.push('欄'+(b.data.cols.length+1));
+  b.data.cols.length=n; b.data.rows.forEach(function(r){ensureRow(r,n);}); renderBlocks();
+}
+
+/* ── 富文字編輯器 ── */
+function buildRichEditor(html, cb) {
+  var wrap=document.createElement('div');
+  var tb=document.createElement('div'); tb.className='rich-tb';
+  var cp=document.createElement('input'); cp.type='color'; cp.className='gc-sw'; cp.value='#ffe600';
+  function mk(t){ var b=document.createElement('button'); b.type='button'; b.className='rtbtn'; b.textContent=t; return b; }
+  var apC=mk('套用顏色'), clC=mk('清除顏色'), urlB=mk('🔗超連結'), rmL=mk('移除連結');
+  tb.appendChild(cp); tb.appendChild(apC); tb.appendChild(clC); tb.appendChild(urlB); tb.appendChild(rmL);
+  var area=document.createElement('div'); area.className='rich-area'; area.contentEditable='true'; area.innerHTML=html;
+  apC.addEventListener('click',function(){
+    var sel=window.getSelection(); if(!sel||!sel.rangeCount||sel.isCollapsed)return;
+    var range=sel.getRangeAt(0), sp=document.createElement('span'); sp.style.color=cp.value;
+    try{range.surroundContents(sp);}catch(e){var f=range.extractContents();sp.appendChild(f);range.insertNode(sp);}
+    sel.removeAllRanges(); cb(area.innerHTML);
+  });
+  clC.addEventListener('click',function(){
+    var sel=window.getSelection(); if(!sel||!sel.rangeCount||sel.isCollapsed)return;
+    var range=sel.getRangeAt(0), f=range.extractContents(), tmp=document.createElement('div'); tmp.appendChild(f);
+    range.insertNode(document.createTextNode(tmp.textContent)); sel.removeAllRanges(); cb(area.innerHTML);
+  });
+  urlB.addEventListener('click',function(){
+    var sel=window.getSelection(); if(!sel||!sel.rangeCount||sel.isCollapsed){alert('請先選取文字');return;}
+    var url=prompt('連結網址:','https://'); if(!url)return;
+    var range=sel.getRangeAt(0), a=document.createElement('a'); a.href=url; a.target='_blank'; a.style.color='inherit';
+    try{range.surroundContents(a);}catch(e){var f=range.extractContents();a.appendChild(f);range.insertNode(a);}
+    sel.removeAllRanges(); cb(area.innerHTML);
+  });
+  rmL.addEventListener('click',function(){
+    var sel=window.getSelection(); if(!sel||!sel.rangeCount)return;
+    var node=sel.getRangeAt(0).commonAncestorContainer, a=node.nodeType===3?node.parentElement:node;
+    while(a&&a.tagName!=='A') a=a.parentElement;
+    if(a) a.parentNode.replaceChild(document.createTextNode(a.textContent),a);
+    cb(area.innerHTML);
+  });
+  area.addEventListener('input',function(){ cb(area.innerHTML); });
+  wrap.appendChild(tb); wrap.appendChild(area); return wrap;
+}
+
+/* ── 無框文字編輯器 ── */
+function buildPlaintextEditor(b) {
+  var d = b.data;
+  var wrap = document.createElement('div'); wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px';
+
+  function mkColorRow(label, dataKey, defaultVal, palette){
+    var row = document.createElement('div'); row.style.cssText = 'display:flex;align-items:center;gap:5px;flex-wrap:wrap';
+    var lbl = document.createElement('span'); lbl.className = 'flbl'; lbl.style.minWidth='44px'; lbl.textContent = label;
+    var sw = document.createElement('input'); sw.type='color'; sw.className='gc-sw'; sw.value = d[dataKey]||defaultVal;
+    var hex = document.createElement('input'); hex.className='gc-hex'; hex.value = d[dataKey]||defaultVal; hex.maxLength=7;
+    sw.addEventListener('input',function(){ d[dataKey]=sw.value; hex.value=sw.value; buildPreview(); });
+    hex.addEventListener('input',function(){ if(/^#[0-9a-fA-F]{6}$/.test(hex.value)){ d[dataKey]=hex.value; sw.value=hex.value; buildPreview(); } });
+    var pal = document.createElement('div'); pal.style.cssText='display:flex;gap:3px;flex-wrap:wrap';
+    (palette||['#ffffff','#ffe600','#ff4444','#00ff84','#1a56a0','#000000','#cccccc']).forEach(function(c){
+      var dot=document.createElement('div'); dot.className='ps-dot'; dot.style.background=c; dot.title=c;
+      dot.addEventListener('click',function(){ d[dataKey]=c; sw.value=c; hex.value=c; buildPreview(); });
+      pal.appendChild(dot);
+    });
+    row.appendChild(lbl); row.appendChild(sw); row.appendChild(hex); row.appendChild(pal);
+    return row;
+  }
+
+  function mkNum(label, dataKey, def, min, max, step, unit){
+    var row=document.createElement('div'); row.style.cssText='display:flex;align-items:center;gap:4px';
+    var lbl=document.createElement('span'); lbl.style.cssText='font-size:11px;color:#555;min-width:52px'; lbl.textContent=label;
+    var inp=document.createElement('input'); inp.type='number'; inp.className='smnum'; inp.style.width='50px';
+    inp.min=min; inp.max=max; inp.step=step||1; inp.value=(d[dataKey]!==undefined?d[dataKey]:def);
+    inp.addEventListener('input',function(){ d[dataKey]=parseFloat(this.value)||0; buildPreview(); });
+    var u=document.createElement('span'); u.style.cssText='font-size:11px;color:#888'; u.textContent=unit||'px';
+    row.appendChild(lbl); row.appendChild(inp); row.appendChild(u);
+    return row;
+  }
+
+  /* 列1：字型 + 字級 */
+  var row1 = document.createElement('div'); row1.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+  var fontLbl = document.createElement('span'); fontLbl.className = 'flbl'; fontLbl.textContent = '字型：';
+  var fontSel = document.createElement('select'); fontSel.className = 'smsel'; fontSel.style.flex = '1';
+  ['Arial','Georgia','Verdana','Tahoma','Courier New','Times New Roman','Trebuchet MS'].forEach(function(f){
+    var o=document.createElement('option'); o.value=f; o.textContent=f;
+    if(f===(d.fontFamily||'Arial')) o.selected=true;
+    fontSel.appendChild(o);
+  });
+  fontSel.addEventListener('change',function(){ d.fontFamily=this.value; buildPreview(); });
+  var sizeLbl=document.createElement('span'); sizeLbl.className='flbl'; sizeLbl.textContent='字級：';
+  var sizeInp=document.createElement('input'); sizeInp.type='number'; sizeInp.className='smnum'; sizeInp.style.width='52px';
+  sizeInp.min=8; sizeInp.max=72; sizeInp.value=d.fontSize||'16';
+  sizeInp.addEventListener('input',function(){ d.fontSize=this.value; buildPreview(); });
+  var sizePx=document.createElement('span'); sizePx.textContent='px'; sizePx.style.cssText='font-size:11px;color:#888';
+  row1.appendChild(fontLbl); row1.appendChild(fontSel); row1.appendChild(sizeLbl); row1.appendChild(sizeInp); row1.appendChild(sizePx);
+  wrap.appendChild(row1);
+
+  /* 列2：粗/斜/底/刪 + 行距 */
+  var row2 = document.createElement('div'); row2.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+  var styleDefs = [
+    {key:'bold',label:'B',tip:'粗體'},
+    {key:'italic',label:'I',tip:'斜體'},
+    {key:'underline',label:'U',tip:'底線'},
+    {key:'strike',label:'S',tip:'刪除線'}
+  ];
+  var styleButtons = {};
+  styleDefs.forEach(function(sd){
+    var btn=document.createElement('button'); btn.type='button'; btn.className='rtbtn'; btn.title=sd.tip;
+    if(sd.key==='bold')      btn.style.cssText='font-weight:bold;width:28px;text-align:center';
+    if(sd.key==='italic')    btn.style.cssText='font-style:italic;width:28px;text-align:center';
+    if(sd.key==='underline') btn.style.cssText='text-decoration:underline;width:28px;text-align:center';
+    if(sd.key==='strike')    btn.style.cssText='text-decoration:line-through;width:28px;text-align:center';
+    btn.textContent=sd.label; styleButtons[sd.key]=btn; row2.appendChild(btn);
+  });
+  var lhLbl=document.createElement('span'); lhLbl.className='flbl'; lhLbl.style.marginLeft='6px'; lhLbl.textContent='行距：';
+  var lhInp=document.createElement('input'); lhInp.type='number'; lhInp.className='smnum'; lhInp.style.width='52px';
+  lhInp.min=0.8; lhInp.max=4; lhInp.step=0.1; lhInp.value=d.lineHeight||'1.7';
+  lhInp.addEventListener('input',function(){ d.lineHeight=this.value; buildPreview(); });
+  var lhUnit=document.createElement('span'); lhUnit.textContent='倍'; lhUnit.style.cssText='font-size:11px;color:#888';
+  row2.appendChild(lhLbl); row2.appendChild(lhInp); row2.appendChild(lhUnit);
+  wrap.appendChild(row2);
+
+  function refreshStyleBtns(){
+    styleDefs.forEach(function(sd){
+      var active=!!d[sd.key];
+      styleButtons[sd.key].style.background=active?'#cde8f5':'#fff';
+      styleButtons[sd.key].style.borderColor=active?'#0891b2':'#bbb';
+    });
+  }
+  styleDefs.forEach(function(sd){
+    styleButtons[sd.key].addEventListener('click',function(){ d[sd.key]=!d[sd.key]; refreshStyleBtns(); buildPreview(); });
+  });
+  refreshStyleBtns();
+
+  /* 文字色 */
+  wrap.appendChild(mkColorRow('文字色：','color','#ffffff'));
+
+  /* 對齊 */
+  var row4=document.createElement('div'); row4.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+  var alignLbl=document.createElement('span'); alignLbl.className='flbl'; alignLbl.textContent='對齊：';
+  var aBtns=[{v:'left',t:'靠左'},{v:'center',t:'置中'},{v:'right',t:'靠右'}].map(function(x){
+    var btn=document.createElement('button'); btn.type='button'; btn.className='rtbtn'; btn.textContent=x.t;
+    btn.addEventListener('click',function(){ d.align=x.v; setAlignPT(x.v); buildPreview(); });
+    return {btn:btn,v:x.v};
+  });
+  function setAlignPT(v){ aBtns.forEach(function(o){ o.btn.style.background=o.v===v?'#e0f7fa':'#fff'; o.btn.style.borderColor=o.v===v?'#0891b2':'#bbb'; }); }
+  setAlignPT(d.align||'left');
+  row4.appendChild(alignLbl); aBtns.forEach(function(o){ row4.appendChild(o.btn); });
+  wrap.appendChild(row4);
+
+  /* 效果區 */
+  var fxSec = document.createElement('div');
+  fxSec.style.cssText = 'border:1.5px solid #d0e8f5;border-radius:8px;padding:8px;background:#f5fbff;display:flex;flex-direction:column;gap:7px';
+  var fxTitle = document.createElement('div'); fxTitle.className='flbl'; fxTitle.style.marginBottom='2px'; fxTitle.textContent='✨ 文字效果';
+  fxSec.appendChild(fxTitle);
+
+  function mkFxGroup(label, enableKey, contentItems){
+    var grp = document.createElement('div'); grp.style.cssText='display:flex;flex-direction:column;gap:4px';
+    var hdr = document.createElement('div'); hdr.style.cssText='display:flex;align-items:center;gap:6px';
+    var tog = document.createElement('input'); tog.type='checkbox'; tog.checked=!!d[enableKey];
+    var lbl = document.createElement('span'); lbl.style.cssText='font-size:12px;font-weight:700;color:#333;cursor:pointer'; lbl.textContent=label;
+    var body = document.createElement('div'); body.style.display=d[enableKey]?'flex':'none'; body.style.flexDirection='column'; body.style.gap='4px'; body.style.paddingLeft='4px';
+    tog.addEventListener('change',function(){ d[enableKey]=tog.checked; body.style.display=tog.checked?'flex':'none'; buildPreview(); });
+    lbl.addEventListener('click',function(){ tog.checked=!tog.checked; tog.dispatchEvent(new Event('change')); });
+    hdr.appendChild(tog); hdr.appendChild(lbl); grp.appendChild(hdr);
+    contentItems.forEach(function(el){ body.appendChild(el); }); grp.appendChild(body);
+    return grp;
+  }
+
+  var shPal=['#000000','#003b24','#1a1a1a','#222244','#440000','#ffffff','#ffe600','#00ff84'];
+  fxSec.appendChild(mkFxGroup('🌑 陰影','shadow',[
+    mkColorRow('陰影色：','shadowColor','#000000',shPal),
+    mkNum('模糊：','shadowBlur',4,0,40,1,'px'),
+    mkNum('X 偏移：','shadowX',2,-20,20,1,'px'),
+    mkNum('Y 偏移：','shadowY',2,-20,20,1,'px')
+  ]));
+
+  fxSec.appendChild(mkFxGroup('🟦 底色','textBg',[
+    mkColorRow('底色：','textBgColor','#000000',['#000000','#ffffff','#003b24','#006b3f','#1a56a0','#ffe600','#ff4444']),
+    mkNum('內距：','textBgPad',6,0,40,1,'px'),
+    mkNum('圓角：','textBgRadius',6,0,40,1,'px')
+  ]));
+
+  fxSec.appendChild(mkFxGroup('▭ 外框','border',[
+    mkColorRow('框線色：','borderColor','#ffffff',['#ffffff','#ffe600','#00ff84','#ff4444','#1a56a0','#000000','#aaaaaa']),
+    mkNum('線寬：','borderWidth',2,1,10,1,'px'),
+    mkNum('圓角：','borderRadius',8,0,40,1,'px'),
+    mkNum('內距：','borderPad',8,0,40,1,'px')
+  ]));
+
+  fxSec.appendChild(mkFxGroup('✨ 光暈','glow',[
+    mkColorRow('光暈色：','glowColor','#00ff84',['#00ff84','#ffe600','#ff4444','#1a56a0','#ffffff','#ff8800','#cc44cc','#00ccff']),
+    mkNum('強度：','glowSize',10,2,60,1,'px')
+  ]));
+
+  wrap.appendChild(fxSec);
+
+  var contentLbl=document.createElement('div'); contentLbl.className='flbl'; contentLbl.textContent='內容（選取後可套用顏色／連結）';
+  wrap.appendChild(contentLbl);
+  wrap.appendChild(buildRichEditor(d.html||'',function(v){ d.html=v; buildPreview(); }));
+  return wrap;
+}
+
+
+
+/* ════════════════════════════════════════════════
+   表格詞條（10.html TRANSLATIONS / GLOSSARY）
+   ════════════════════════════════════════════════ */
+var TBL_GLOSSARY = {
+  nepali: [
+    ["PROMOTION","प्रमोशन"],["GAME TYPES","खेल प्रकार"],["GAME","खेल"],
+    ["REPETITIONS","पुनरावृत्ति"],["BONUS %","बोनस %"],["BONUS","बोनस"],
+    ["MAX BONUS","अधिकतम बोनस"],["UNLIMITED","असीमित"],["TURNOVER","कारोबार"],
+    ["MIN DEPOSIT","न्यूनतम जम्मा"],["MAX WITHDRAWAL","अधिकतम निकासी"],
+    ["AMOUNT VOLUME %","रकम भोल्युम %"],
+    ["ONE-TIME","एक पटक"],["DAILY ONE-TIME","दैनिक एकपटक"],["DAILY","दैनिक"],
+    ["WEEKLY ONE-TIME","साप्ताहिक एकपटक"],["WEEKLY","साप्ताहिक"],
+    ["ALL GAMES","सबै खेलहरू"],["LIVE CASINO","जीवन क्यासिनो"],
+    ["SLOT","स्लट"],["SLOTS","स्लट"],["CRASH GAME","दुर्घटना खेल"],
+    ["FISHING","माछा पकड़्नु"],["ESPORT","इ-स्पोर्ट"],["CARD GAME","कार्ड खेलहरू"],
+    ["SPORTS","खेलकुद"],["LOTTERY","लटरी"],["COCKFIGHT","चिडियाँ युद्ध"],
+    ["CRICKET","क्रिकेट"],["TABLE","टेबल खेल"],["ARCADE","आर्केड"],
+    ["SLOT & FISHING","स्लट र माछा पकड़्नु"],["AMOUNT","रकम"],
+    ["1X","१X"],["100%","१००%"],["5%","५%"],["8%","८%"],["12%","१२%"],
+    ["रु100","रु१००"],["रु500","रु५००"],["रु1,000","रु१,०००"],["UNLIMITED","असीमित"]
+  ],
+  bengali: [
+    ["PROMOTION","প্রচার"],["GAME TYPES","গেমের ধরন"],["GAME","গেম"],
+    ["REPETITIONS","পুনরাবৃত্তি"],["BONUS %","বোনাস %"],["BONUS","বোনাস"],
+    ["MAX BONUS","সর্বোচ্চ বোনাস"],["UNLIMITED","অসীম"],["TURNOVER","টার্নওভার"],
+    ["MIN DEPOSIT","সর্বনিম্ন জমা"],["MAX WITHDRAWAL","সর্বোচ্চ উত্তোলন"],
+    ["AMOUNT VOLUME %","পরিমাণ ভলিউম %"],
+    ["ONE-TIME","একবার"],["DAILY ONE-TIME","দৈনিক একবার"],["DAILY","দৈনিক"],
+    ["WEEKLY ONE-TIME","সাপ্তাহিক একবার"],["WEEKLY","সাপ্তাহিক"],
+    ["ALL GAMES","সমস্ত গেম"],["LIVE CASINO","লাইভ ক্যাসিনো"],["CASINO","ক্যাসিনো"],
+    ["SLOT","স্লট"],["SLOTS","স্লট"],["CRASH GAME","ক্র্যাশ"],
+    ["FISHING","ফিশিং"],["ESPORT","ই-স্পোর্টস"],["CARD GAME","কার্ড গেম"],
+    ["SPORTS","স্পোর্ট"],["LOTTERY","লটারি"],["COCKFIGHT","মোরগ লড়াই"],
+    ["CRICKET","ক্রিকেট"],["TABLE","টেবিল"],["ARCADE","আর্কেড"],
+    ["SLOT & FISHING","স্লট এবং ফিশিং"],["AMOUNT","পরিমাণ"],
+    ["1X","১X"],["100%","১০০%"],["5%","৫%"],["8%","৮%"],["12%","১২%"],
+    ["रु100","৳১০০"],["रु500","৳৫০০"],["रु1,000","৳১,০০০"]
+  ],
+  tagalog: [
+    ["PROMOTION","PROMOSYON"],["GAME TYPES","URI NG LARO"],["GAME","LARO"],
+    ["REPETITIONS","DALAS"],["BONUS %","BONUS %"],["BONUS","BONUS"],
+    ["MAX BONUS","MAXIMUM NA BONUS"],["UNLIMITED","WALANG LIMIT"],["TURNOVER","TURNOVER"],
+    ["MIN DEPOSIT","MINIMUM NA DEPOSITO"],["MAX WITHDRAWAL","MAXIMUM NA PWEDENG I-WITHDRAW"],
+    ["AMOUNT VOLUME %","HALAGA AT VOLUME %"],
+    ["ONE-TIME","ISANG BESES"],["DAILY ONE-TIME","ISANG BESES KADA ARAW"],["DAILY","ARAW-ARAW"],
+    ["WEEKLY ONE-TIME","LINGGUHANG ISANG BESES"],["WEEKLY","LINGGUHAN"],
+    ["ALL GAMES","LAHAT NG LARO"],["CASINO","CASINO"],
+    ["SLOT","LARO NG SLOT"],["SLOTS","LARO NG SLOT"],["CRASH GAME","CRASH GAME"],
+    ["FISHING","LARONG PANGINGISDA"],["ESPORT","ESPORTS"],["CARD GAME","LARONG BARAHA"],
+    ["SPORTS","PALAKASAN"],["LOTTERY","LOTERYA"],["COCKFIGHT","SABONG"],
+    ["CRICKET","KRIKET"],["TABLE","TABLE"],["ARCADE","ARCADE"],
+    ["SLOT & FISHING","SLOT & PANGINGISDA"],["AMOUNT","HALAGA"],
+    ["1X","1X"],["100%","100%"],["5%","5%"],["8%","8%"],["12%","12%"],
+    ["रु100","100 PHP"],["रु500","500 PHP"],["रु1,000","1,000 PHP"]
+  ]
+};
+
+var _glossaryLang = 'nepali';   // 目前詞條語言
+var _glossaryTarget = null;     // 目前目標 input（點「📋」時記錄）
+
+/* 開啟詞條面板 */
+function _showGlossaryPanel(targetInput) {
+  _glossaryTarget = targetInput || null;
+  document.querySelectorAll('.x-gloss-panel').forEach(function(p){p.remove();});
+
+  var overlay = document.createElement('div');
+  overlay.className = 'x-gloss-panel';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);z-index:9998;display:flex;align-items:center;justify-content:center;';
+
+  var box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:12px;padding:18px;max-width:560px;width:95%;max-height:85vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.35);border-top:5px solid #b45309;';
+
+  /* 標題列 */
+  var titleBar = document.createElement('div');
+  titleBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;';
+  var h2 = document.createElement('span');
+  h2.style.cssText = 'font-size:15px;font-weight:900;color:#b45309;';
+  h2.textContent = '📋 表格詞條';
+  var closeBtn = document.createElement('button');
+  closeBtn.type='button';
+  closeBtn.style.cssText='background:#ddd;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:14px;line-height:1;font-weight:700;';
+  closeBtn.textContent='✕';
+  closeBtn.onclick = function(){ overlay.remove(); };
+  titleBar.appendChild(h2); titleBar.appendChild(closeBtn);
+  box.appendChild(titleBar);
+
+  /* 提示 */
+  var sub = document.createElement('div');
+  sub.style.cssText = 'font-size:11px;color:#aaa;margin-bottom:10px;';
+  sub.textContent = targetInput ? '點擊任一格即可複製 → 自動填入目標欄位' : '點擊任一格即可複製到剪貼簿';
+  box.appendChild(sub);
+
+  /* 語言切換按鈕 */
+  var langBar = document.createElement('div');
+  langBar.style.cssText = 'display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;';
+  var LANG_LABELS = {nepali:'🇳🇵 Nepali', bengali:'🇧🇩 Bengali', tagalog:'🇵🇭 Tagalog'};
+  var LANG_COLORS = {nepali:'#3531a8', bengali:'#22a085', tagalog:'#e91e8c'};
+  var langBtns = {};
+
+  function refreshLangBtns(){
+    Object.keys(langBtns).forEach(function(k){
+      var active = k===_glossaryLang;
+      langBtns[k].style.opacity = active?'1':'0.45';
+      langBtns[k].style.transform = active?'scale(1.06)':'scale(1)';
+      langBtns[k].style.border = active?'2px solid #fff':'2px solid transparent';
+    });
+  }
+
+  Object.keys(LANG_LABELS).forEach(function(k){
+    var btn=document.createElement('button'); btn.type='button';
+    btn.textContent=LANG_LABELS[k];
+    btn.style.cssText='padding:4px 14px;font-size:12px;font-weight:900;border-radius:20px;cursor:pointer;color:#fff;background:'+LANG_COLORS[k]+';transition:all .2s;';
+    btn.onclick=function(){ _glossaryLang=k; refreshLangBtns(); rebuildTable(); };
+    langBtns[k]=btn; langBar.appendChild(btn);
+  });
+  refreshLangBtns();
+  box.appendChild(langBar);
+
+  /* 詞條表格容器 */
+  var tblWrap = document.createElement('div');
+  box.appendChild(tblWrap);
+
+  function rebuildTable(){
+    tblWrap.innerHTML='';
+    var rows = TBL_GLOSSARY[_glossaryLang]||[];
+    var tbl = document.createElement('table');
+    tbl.style.cssText='width:100%;border-collapse:collapse;font-size:13px;';
+
+    var thead=document.createElement('thead');
+    var htr=document.createElement('tr');
+    ['英文','譯文'].forEach(function(h){
+      var th=document.createElement('th');
+      th.style.cssText='padding:7px 10px;background:'+LANG_COLORS[_glossaryLang]+';color:#fff;text-align:center;border:1px solid #ddd;font-weight:700;font-size:12px;';
+      th.textContent=h; htr.appendChild(th);
+    });
+    thead.appendChild(htr); tbl.appendChild(thead);
+
+    var tbody=document.createElement('tbody');
+    rows.forEach(function(pair,idx){
+      var tr=document.createElement('tr');
+      tr.style.background=idx%2===0?'#f7f7f7':'#fff';
+      pair.forEach(function(val){
+        var td=document.createElement('td');
+        td.style.cssText='padding:6px 10px;border:1px solid #e0e0e0;text-align:center;cursor:pointer;user-select:none;color:#222;font-weight:500;';
+        td.textContent=val;
+        td.title='點擊複製：'+val;
+        td.addEventListener('mouseenter',function(){ this.style.background='#fff3cd'; });
+        td.addEventListener('mouseleave',function(){ this.style.background=idx%2===0?'#f7f7f7':'#fff'; });
+        td.addEventListener('click', (function(v){return function(){
+          /* 填入目標欄位 */
+          if(_glossaryTarget){
+            _glossaryTarget.value=v;
+            _glossaryTarget.dispatchEvent(new Event('input',{bubbles:true}));
+            /* 閃爍回饋 */
+            var orig=_glossaryTarget.style.borderColor;
+            _glossaryTarget.style.borderColor='#b45309';
+            _glossaryTarget.style.boxShadow='0 0 0 2px rgba(180,83,9,.3)';
+            setTimeout(function(){ _glossaryTarget.style.borderColor=orig; _glossaryTarget.style.boxShadow=''; },600);
+          }
+          /* 複製到剪貼簿 */
+          navigator.clipboard.writeText(v).catch(function(){});
+          /* 回饋色 */
+          var origBg=td.style.background;
+          td.style.background='#a8e6cf';
+          setTimeout(function(){ td.style.background=origBg; },500);
+        };})(val));
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    tbl.appendChild(tbody);
+    tblWrap.appendChild(tbl);
+  }
+  rebuildTable();
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click',function(e){ if(e.target===overlay) overlay.remove(); });
+}
+
+/* ════════════════════════════════════════════════
+   10.html 規則：高亮 / 底色 / 跨格 狀態
+   ════════════════════════════════════════════════ */
+var TBL_HIGHLIGHT = {};  // key "bid-ri-ci" → true
+var TBL_CELLBG    = {};  // key "bid-ri-ci" → true  (套用標題底色)
+var TBL_SPAN      = {};  // key "bid-ri-ci" → {cs,rs} 或 "hidden"
+var TBL_HDR_SPAN  = {};  // key "bid-hdr-ci" → {cs} 或 "hidden"  (標題列跨格)
+
+function _hKey(bid,ci){ return bid+'-hdr-'+ci; }
+function _getHdrSpan(bid,ci){ var v=TBL_HDR_SPAN[_hKey(bid,ci)]; return(!v||v==='hidden')?null:v; }
+function _isHdrHidden(bid,ci){ return TBL_HDR_SPAN[_hKey(bid,ci)]==='hidden'; }
+function _clearHdrSpan(bid,ci,ncols){
+  var key=_hKey(bid,ci), v=TBL_HDR_SPAN[key];
+  if(!v||v==='hidden') return;
+  var cs=v.cs||1; delete TBL_HDR_SPAN[key];
+  for(var dc=1;dc<cs;dc++) delete TBL_HDR_SPAN[_hKey(bid,ci+dc)];
+}
+function _applyHdrSpan(bid,ci,cs,ncols){
+  _clearHdrSpan(bid,ci,ncols);
+  if(cs<=1) return;
+  TBL_HDR_SPAN[_hKey(bid,ci)]={cs:cs};
+  for(var dc=1;dc<cs;dc++) TBL_HDR_SPAN[_hKey(bid,ci+dc)]='hidden';
+}
+function _showHdrSpanPanel(bid,ci,ncols,anchorEl){
+  document.querySelectorAll('.x-hspan-panel').forEach(function(p){p.remove();});
+  var ex=_getHdrSpan(bid,ci), curCs=ex?ex.cs:1;
+  var panel=document.createElement('div');
+  panel.className='x-hspan-panel';
+  panel.style.cssText='position:fixed;background:#fff;border:2px solid #1a6e4f;border-radius:8px;padding:10px 14px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.25);font-size:13px;color:#222;min-width:190px;';
+  panel.innerHTML=
+    '<div style="font-weight:900;color:#1a6e4f;margin-bottom:8px;">⊞ 標題跨格設定</div>'
+   +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
+   +'<span style="width:56px">橫跨欄：</span>'
+   +'<input id="xhsp-cs" type="number" min="1" max="'+ncols+'" value="'+curCs+'" style="width:52px;border:1.5px solid #bbb;border-radius:4px;padding:3px;color:#222;background:#fff;"></div>'
+   +'<div style="display:flex;gap:6px;">'
+   +'<button id="xhsp-ok"  style="flex:1;padding:5px;background:#1a6e4f;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">套用</button>'
+   +'<button id="xhsp-clr" style="flex:1;padding:5px;background:#e74c3c;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">清除</button>'
+   +'<button id="xhsp-cl"  style="flex:1;padding:5px;background:#888;color:#fff;border:none;border-radius:5px;cursor:pointer;">取消</button>'
+   +'</div>';
+  var rect=anchorEl.getBoundingClientRect();
+  panel.style.top=(rect.bottom+4)+'px';
+  panel.style.left=Math.min(rect.left,window.innerWidth-210)+'px';
+  document.body.appendChild(panel);
+  panel.querySelector('#xhsp-ok').onclick=function(){
+    var cs=parseInt(panel.querySelector('#xhsp-cs').value)||1;
+    _applyHdrSpan(bid,ci,cs,ncols); panel.remove(); renderBlocks();
+  };
+  panel.querySelector('#xhsp-clr').onclick=function(){
+    _clearHdrSpan(bid,ci,ncols); panel.remove(); renderBlocks();
+  };
+  panel.querySelector('#xhsp-cl').onclick=function(){ panel.remove(); };
+  setTimeout(function(){
+    document.addEventListener('click',function _h(e){
+      if(!panel.contains(e.target)){ panel.remove(); document.removeEventListener('click',_h); }
+    });
+  },50);
+}
+
+function _tKey(bid,ri,ci){ return bid+'-'+ri+'-'+ci; }
+function _getTblSpan(bid,ri,ci){ var v=TBL_SPAN[_tKey(bid,ri,ci)]; return(!v||v==='hidden')?null:v; }
+function _isTblHidden(bid,ri,ci){ return TBL_SPAN[_tKey(bid,ri,ci)]==='hidden'; }
+
+function _clearTblSpan(bid,ri,ci){
+  var key=_tKey(bid,ri,ci), v=TBL_SPAN[key];
+  if(!v||v==='hidden') return;
+  var cs=v.cs||1, rs=v.rs||1;
+  delete TBL_SPAN[key];
+  for(var dr=0;dr<rs;dr++) for(var dc=0;dc<cs;dc++){
+    if(dr===0&&dc===0) continue;
+    delete TBL_SPAN[_tKey(bid,ri+dr,ci+dc)];
+  }
+}
+function _applyTblSpan(bid,ri,ci,cs,rs){
+  _clearTblSpan(bid,ri,ci);
+  if(cs===1&&rs===1) return;
+  TBL_SPAN[_tKey(bid,ri,ci)]={cs:cs,rs:rs};
+  for(var dr=0;dr<rs;dr++) for(var dc=0;dc<cs;dc++){
+    if(dr===0&&dc===0) continue;
+    TBL_SPAN[_tKey(bid,ri+dr,ci+dc)]='hidden';
+  }
+}
+
+/* 跨格設定面板 */
+function _showSpanPanel(bid,ri,ci,anchorEl){
+  document.querySelectorAll('.x-span-panel').forEach(function(p){p.remove();});
+  var ex=_getTblSpan(bid,ri,ci);
+  var cCs=ex?ex.cs:1, cRs=ex?ex.rs:1;
+  var panel=document.createElement('div');
+  panel.className='x-span-panel';
+  panel.style.cssText='position:fixed;background:#fff;border:2px solid #b45309;border-radius:8px;padding:10px 14px;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.25);font-size:13px;color:#222;min-width:190px;';
+  panel.innerHTML=
+    '<div style="font-weight:900;color:#b45309;margin-bottom:8px;">⊞ 跨格設定</div>'
+   +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">'
+   +'<span style="width:56px">橫跨欄：</span>'
+   +'<input id="xsp-cs" type="number" min="1" max="10" value="'+cCs+'" style="width:52px;border:1.5px solid #bbb;border-radius:4px;padding:3px;color:#222;background:#fff;"></div>'
+   +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
+   +'<span style="width:56px">縱跨列：</span>'
+   +'<input id="xsp-rs" type="number" min="1" max="10" value="'+cRs+'" style="width:52px;border:1.5px solid #bbb;border-radius:4px;padding:3px;color:#222;background:#fff;"></div>'
+   +'<div style="display:flex;gap:6px;">'
+   +'<button id="xsp-ok"  style="flex:1;padding:5px;background:#b45309;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">套用</button>'
+   +'<button id="xsp-clr" style="flex:1;padding:5px;background:#e74c3c;color:#fff;border:none;border-radius:5px;cursor:pointer;font-weight:700;">清除</button>'
+   +'<button id="xsp-cl"  style="flex:1;padding:5px;background:#888;color:#fff;border:none;border-radius:5px;cursor:pointer;">取消</button>'
+   +'</div>';
+  var rect=anchorEl.getBoundingClientRect();
+  panel.style.top=(rect.bottom+4)+'px';
+  panel.style.left=Math.min(rect.left, window.innerWidth-210)+'px';
+  document.body.appendChild(panel);
+  panel.querySelector('#xsp-ok').onclick=function(){
+    var cs=parseInt(panel.querySelector('#xsp-cs').value)||1;
+    var rs=parseInt(panel.querySelector('#xsp-rs').value)||1;
+    _applyTblSpan(bid,ri,ci,cs,rs);
+    panel.remove(); renderBlocks();
+  };
+  panel.querySelector('#xsp-clr').onclick=function(){
+    _clearTblSpan(bid,ri,ci); panel.remove(); renderBlocks();
+  };
+  panel.querySelector('#xsp-cl').onclick=function(){ panel.remove(); };
+  setTimeout(function(){
+    document.addEventListener('click',function _h(e){
+      if(!panel.contains(e.target)){ panel.remove(); document.removeEventListener('click',_h); }
+    });
+  },50);
+}
+
+/* ── 表格編輯器 ── */
+function buildTableEditor(b) {
+  var d=b.data, id=b.id, isKV=d.ttype==='kv', ncols=isKV?2:d.ncols;
+  var wrap=document.createElement('div'); wrap.style.cssText='display:flex;flex-direction:column;gap:8px';
+  var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+  var tl=document.createElement('span'); tl.className='flbl'; tl.textContent='標題';
+  var ti=document.createElement('input'); ti.className='finp'; ti.style.cssText='flex:1;min-width:70px'; ti.value=d.title;
+  ti.addEventListener('input',(function(dd){return function(){dd.title=this.value;buildPreview();};})(d));
+  var ts=document.createElement('select'); ts.className='smsel';
+  [{v:'kv',t:'左標題＋右值'},{v:'grid',t:'多欄表格'}].forEach(function(x){ var o=document.createElement('option'); o.value=x.v; o.textContent=x.t; if(x.v===d.ttype)o.selected=true; ts.appendChild(o); });
+  ts.addEventListener('change',function(){ d.ttype=this.value; if(d.ttype==='kv') d.rows=d.rows.map(function(r){return {cells:[r.cells[0]||'',r.cells[1]||''],bg:['',''],fg:['','']};});renderBlocks(); });
+  top.appendChild(tl); top.appendChild(ti); top.appendChild(ts);
+  if(!isKV){ var nl=document.createElement('span'); nl.className='flbl'; nl.textContent='欄數'; var ni=document.createElement('input'); ni.type='number'; ni.className='smnum'; ni.min=1; ni.max=6; ni.value=ncols; ni.addEventListener('input',(function(bid){return function(){resizeCols(bid,parseInt(this.value)||2);};})(id)); top.appendChild(nl); top.appendChild(ni); }
+  wrap.appendChild(top);
+
+  /* 提示文字 */
+  var tip=document.createElement('div');
+  tip.style.cssText='font-size:11px;color:#888;background:#fff8e1;border:1px solid #ffe082;border-radius:5px;padding:3px 8px;';
+  tip.innerHTML='💡 <b>右鍵</b>儲存格 → 切換高亮 ｜ <b>🎨</b> → 標題底色 ｜ <b>⊞跨</b> → 合併跨格';
+  wrap.appendChild(tip);
+
+  /* ── 詞條快速填入按鈕 ── */
+  var glossBar=document.createElement('div'); glossBar.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
+  var glossLbl=document.createElement('span'); glossLbl.style.cssText='font-size:11px;color:#555;font-weight:700;'; glossLbl.textContent='📋 詞條：';
+  glossBar.appendChild(glossLbl);
+  /* 全域開啟按鈕（不鎖定目標） */
+  var glossAllBtn=document.createElement('button'); glossAllBtn.type='button'; glossAllBtn.className='add-btn';
+  glossAllBtn.style.cssText='font-size:11px;padding:2px 8px;border-color:#b45309;color:#b45309;';
+  glossAllBtn.textContent='開啟詞條面板';
+  glossAllBtn.addEventListener('click',function(){ _showGlossaryPanel(null); });
+  glossBar.appendChild(glossAllBtn);
+  /* 提示文字 */
+  var glossHint=document.createElement('span'); glossHint.style.cssText='font-size:10px;color:#aaa;';
+  glossHint.textContent='（或點儲存格右側的 📋 圖示直接填入）';
+  glossBar.appendChild(glossHint);
+  wrap.appendChild(glossBar);
+
+  /* ── 欄位標題行（支援跨格合併）── */
+  var hg=document.createElement('div'); hg.style.cssText='display:flex;gap:3px;margin-bottom:2px;align-items:center;';
+  if(isKV){
+    var s1=document.createElement('span'); s1.className='th-inp'; s1.style.cssText='flex:1;pointer-events:none'; s1.textContent='標題欄';
+    var s2=document.createElement('span'); s2.className='th-inp'; s2.style.cssText='flex:1;pointer-events:none'; s2.textContent='數值欄';
+    hg.appendChild(s1); hg.appendChild(s2);
+  } else {
+    d.cols.forEach(function(c,ci){
+      if(_isHdrHidden(id,ci)) return;
+      var span=_getHdrSpan(id,ci);
+      var cs=span?span.cs:1;
+      var hasSpan=cs>1;
+      var colW=(cs/ncols*100)+'%';
+
+      var cellWrap=document.createElement('div');
+      cellWrap.style.cssText='display:flex;flex-direction:column;gap:2px;flex:'+cs+';min-width:0;';
+
+      var inp=document.createElement('input'); inp.className='th-inp';
+      inp.value=c; inp.style.cssText='width:100%;box-sizing:border-box;'+(hasSpan?'border:2px solid #1a6e4f;border-radius:4px;':'')+';';
+      inp.addEventListener('input',(function(dd,c2){return function(){dd.cols[c2]=this.value;buildPreview();};})(d,ci));
+
+      /* ⊞跨 按鈕 */
+      var spBtn=document.createElement('button'); spBtn.type='button';
+      spBtn.style.cssText='font-size:9px;padding:0 4px;border:1.5px solid '+(hasSpan?'#e67e22':'#bbb')+';border-radius:3px;cursor:pointer;background:'+(hasSpan?'#e67e22':'#fff')+';color:'+(hasSpan?'#fff':'#666')+';font-weight:700;line-height:14px;align-self:flex-start;';
+      spBtn.textContent=hasSpan?('⊞'+cs+'欄'):'⊞跨';
+      spBtn.title='標題格跨欄合併';
+      spBtn.addEventListener('click',(function(bid2,c2,n){return function(e){
+        e.stopPropagation(); _showHdrSpanPanel(bid2,c2,n,this);
+      };})(id,ci,ncols));
+
+      cellWrap.appendChild(inp); cellWrap.appendChild(spBtn);
+      hg.appendChild(cellWrap);
+    });
+  }
+  hg.appendChild(document.createElement('span')); wrap.appendChild(hg);
+
+  d.rows.forEach(function(row,ri){
+    if(_isTblHidden(id,ri,0) && ncols===1) return; // skip fully hidden rows (span)
+    var rg=document.createElement('div'); rg.style.cssText='border:1px solid #ddd;border-radius:7px;padding:7px;margin-bottom:5px;background:#fafafa';
+
+    /* ── 儲存格輸入列（原本 UI）── */
+    var cg=document.createElement('div'); cg.style.cssText='display:grid;gap:3px;margin-bottom:4px;align-items:center'; cg.style.gridTemplateColumns='repeat('+ncols+',1fr) 28px';
+    row.cells.forEach(function(cell,ci){
+      if(_isTblHidden(id,ri,ci)) return;
+      var inp=document.createElement('input'); inp.className='td-inp'+(ci>0?' td-y':''); inp.value=cell;
+      inp.addEventListener('input',(function(r,c){return function(){r.cells[c]=this.value;buildPreview();};})(row,ci));
+      /* 右鍵高亮 */
+      inp.addEventListener('contextmenu',(function(bid,r2,c2){return function(e){
+        e.preventDefault();
+        var k=_tKey(bid,r2,c2);
+        if(TBL_HIGHLIGHT[k]) delete TBL_HIGHLIGHT[k]; else TBL_HIGHLIGHT[k]=true;
+        renderBlocks();
+      };})(id,ri,ci));
+      /* 📋 詞條快速填入按鈕 */
+      var cellWrap=document.createElement('div'); cellWrap.style.cssText='display:flex;align-items:center;gap:2px;';
+      var gBtn=document.createElement('button'); gBtn.type='button';
+      gBtn.style.cssText='font-size:10px;padding:0 4px;border:1.5px solid #b45309;border-radius:4px;cursor:pointer;background:#fff8f0;color:#b45309;font-weight:700;flex-shrink:0;line-height:18px;';
+      gBtn.textContent='📋'; gBtn.title='開啟詞條並填入此格';
+      gBtn.addEventListener('click',(function(targetInp){return function(e){
+        e.stopPropagation(); _showGlossaryPanel(targetInp);
+      };})(inp));
+      cellWrap.appendChild(inp); cellWrap.appendChild(gBtn);
+      cg.appendChild(cellWrap);
+    });
+    var rd=document.createElement('button'); rd.type='button'; rd.className='row-del'; rd.textContent='✕'; rd.addEventListener('click',(function(dd,ri2){return function(){dd.rows.splice(ri2,1);renderBlocks();};})(d,ri)); cg.appendChild(rd);
+    rg.appendChild(cg);
+
+    /* ── 新增：底色 + 跨格 小按鈕列 ── */
+    var xbar=document.createElement('div'); xbar.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px;';
+    row.cells.forEach(function(cell,ci){
+      if(_isTblHidden(id,ri,ci)) return;
+      var k=_tKey(id,ri,ci);
+      var isHL=!!TBL_HIGHLIGHT[k];
+      var hasBg=!!TBL_CELLBG[k];
+      var span=_getTblSpan(id,ri,ci);
+      var cs=span?span.cs:1, rs=span?span.rs:1;
+      var hasSpan=!!(span&&(cs>1||rs>1));
+
+      var cellBox=document.createElement('div'); cellBox.style.cssText='display:flex;gap:2px;align-items:center;background:#f0f0f0;border-radius:4px;padding:2px 4px;';
+      var cellLabel=document.createElement('span'); cellLabel.style.cssText='font-size:10px;color:#555;min-width:20px;text-align:center;font-weight:700;';
+      cellLabel.textContent='C'+(ci+1); cellBox.appendChild(cellLabel);
+
+      /* 高亮狀態徽章 */
+      if(isHL){
+        var hlBadge=document.createElement('span');
+        hlBadge.style.cssText='font-size:9px;background:#ffe600;color:#7a5c00;border-radius:3px;padding:0 3px;font-weight:700;';
+        hlBadge.textContent='★HL'; cellBox.appendChild(hlBadge);
+      }
+
+      /* 🎨 底色切換 */
+      var bgBtn=document.createElement('button'); bgBtn.type='button';
+      bgBtn.title=hasBg?'移除標題底色':'套用標題底色';
+      bgBtn.style.cssText='font-size:10px;padding:1px 5px;border:1.5px solid '+(hasBg?'#106b4f':'#bbb')+';border-radius:4px;cursor:pointer;background:'+(hasBg?'#106b4f':'#fff')+';color:'+(hasBg?'#fff':'#555')+';font-weight:700;flex-shrink:0;';
+      bgBtn.textContent='🎨';
+      bgBtn.addEventListener('click',(function(bk){return function(e){
+        e.stopPropagation();
+        if(TBL_CELLBG[bk]) delete TBL_CELLBG[bk]; else TBL_CELLBG[bk]=true;
+        renderBlocks();
+      };})(k));
+      cellBox.appendChild(bgBtn);
+
+      /* ⊞跨格 */
+      var spBtn=document.createElement('button'); spBtn.type='button';
+      spBtn.title='跨格合併設定';
+      spBtn.style.cssText='font-size:10px;padding:1px 5px;border:1.5px solid '+(hasSpan?'#e67e22':'#bbb')+';border-radius:4px;cursor:pointer;background:'+(hasSpan?'#e67e22':'#fff')+';color:'+(hasSpan?'#fff':'#555')+';font-weight:700;flex-shrink:0;';
+      spBtn.textContent=hasSpan?('⊞'+cs+'×'+rs):'⊞跨';
+      spBtn.addEventListener('click',(function(bid2,r2,c2){return function(e){
+        e.stopPropagation(); _showSpanPanel(bid2,r2,c2,this);
+      };})(id,ri,ci));
+      cellBox.appendChild(spBtn);
+
+      xbar.appendChild(cellBox);
+    });
+    rg.appendChild(xbar);
+
+    /* ── 原本的顏色設定（ccbox）── */
+    var cr=document.createElement('div'); cr.style.cssText='display:flex;gap:4px;flex-wrap:wrap';
+    row.cells.forEach(function(c,ci){ cr.appendChild(makeCCBox(row,ci,'欄'+(ci+1))); });
+    rg.appendChild(cr); wrap.appendChild(rg);
+  });
+
+  var ab=document.createElement('button'); ab.type='button'; ab.className='add-btn'; ab.textContent='+ 新增行';
+  ab.addEventListener('click',(function(dd,n){return function(){dd.rows.push(makeRow(n));renderBlocks();};})(d,ncols));
+  wrap.appendChild(ab); return wrap;
+}
+
+/* ── 連結按鈕編輯器 ── */
+function buildLinkBtnEditor(b) {
+  var d = b.data;
+  var wrap = document.createElement('div'); wrap.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+
+  function row(label, el) {
+    var r = document.createElement('div'); r.style.cssText = 'display:flex;align-items:center;gap:6px;flex-wrap:wrap;';
+    var l = document.createElement('span'); l.className = 'flbl'; l.textContent = label;
+    r.appendChild(l); r.appendChild(el); return r;
+  }
+  function inp(val, key, style) {
+    var i = document.createElement('input'); i.className = 'finp'; i.value = val;
+    if(style) i.style.cssText = style;
+    i.addEventListener('input', (function(k){ return function(){ d[k]=this.value; buildPreview(); }; })(key));
+    return i;
+  }
+  function num(val, key, min, max, label2) {
+    var i = document.createElement('input'); i.type='number'; i.className='smnum'; i.min=min; i.max=max; i.value=val;
+    i.addEventListener('input', (function(k){ return function(){ d[k]=this.value; buildPreview(); }; })(key));
+    return i;
+  }
+  function clr(val, key) {
+    var i = document.createElement('input'); i.type='color'; i.value=val||'#ffffff';
+    i.style.cssText='width:36px;height:28px;border:none;border-radius:4px;cursor:pointer;padding:0;';
+    i.addEventListener('input', (function(k){ return function(){ d[k]=this.value; buildPreview(); }; })(key));
+    return i;
+  }
+  function chk(val, key, label2) {
+    var c = document.createElement('input'); c.type='checkbox'; c.checked=val;
+    c.addEventListener('change', (function(k){ return function(){ d[k]=this.checked; buildPreview(); }; })(key));
+    var lbl = document.createElement('label'); lbl.style.cssText='display:flex;align-items:center;gap:4px;font-size:12px;color:#555;font-weight:700;cursor:pointer;';
+    lbl.appendChild(c); lbl.appendChild(document.createTextNode(label2));
+    return lbl;
+  }
+
+  // 按鈕文字
+  wrap.appendChild(row('按鈕文字', inp(d.text, 'text', 'flex:1;min-width:100px;')));
+  // 超連結 URL
+  wrap.appendChild(row('連結 URL', inp(d.url, 'url', 'flex:1;min-width:140px;font-size:12px;')));
+  // 對齊
+  var alSel = document.createElement('select'); alSel.className = 'smsel';
+  [{v:'left',t:'靠左'},{v:'center',t:'置中'},{v:'right',t:'靠右'}].forEach(function(x){
+    var o=document.createElement('option'); o.value=x.v; o.textContent=x.t; o.style.cssText='color:#222;background:#fff;';
+    if(x.v===d.align) o.selected=true; alSel.appendChild(o);
+  });
+  alSel.addEventListener('change', function(){ d.align=this.value; buildPreview(); });
+  wrap.appendChild(row('對齊', alSel));
+
+  // 顏色列
+  var clrRow = document.createElement('div'); clrRow.style.cssText='display:flex;gap:10px;flex-wrap:wrap;align-items:center;';
+  var bgLabel = document.createElement('span'); bgLabel.className='flbl'; bgLabel.textContent='背景色';
+  var fgLabel = document.createElement('span'); fgLabel.className='flbl'; fgLabel.textContent='文字色';
+  clrRow.appendChild(bgLabel); clrRow.appendChild(clr(d.bgColor,'bgColor'));
+  clrRow.appendChild(fgLabel); clrRow.appendChild(clr(d.textColor,'textColor'));
+  wrap.appendChild(clrRow);
+
+  // 字體大小、圓角
+  var sizeRow = document.createElement('div'); sizeRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+  var fsLbl=document.createElement('span'); fsLbl.className='flbl'; fsLbl.textContent='字體大小';
+  var rrLbl=document.createElement('span'); rrLbl.className='flbl'; rrLbl.textContent='圓角';
+  sizeRow.appendChild(fsLbl); sizeRow.appendChild(num(d.fontSize,'fontSize',8,48));
+  sizeRow.appendChild(rrLbl); sizeRow.appendChild(num(d.borderRadius,'borderRadius',0,100));
+  wrap.appendChild(sizeRow);
+
+  // Padding
+  var padRow = document.createElement('div'); padRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+  var pvLbl=document.createElement('span'); pvLbl.className='flbl'; pvLbl.textContent='上下距';
+  var phLbl=document.createElement('span'); phLbl.className='flbl'; phLbl.textContent='左右距';
+  padRow.appendChild(pvLbl); padRow.appendChild(num(d.paddingV,'paddingV',0,60));
+  padRow.appendChild(phLbl); padRow.appendChild(num(d.paddingH,'paddingH',0,120));
+  wrap.appendChild(padRow);
+
+  // 光暈 + 陰影
+  var optRow = document.createElement('div'); optRow.style.cssText='display:flex;gap:10px;flex-wrap:wrap;align-items:center;';
+  optRow.appendChild(chk(d.glow!==false,'glow','✨ 外光暈'));
+  var gcLbl=document.createElement('span'); gcLbl.className='flbl'; gcLbl.textContent='光暈色';
+  optRow.appendChild(gcLbl); optRow.appendChild(clr(d.glowColor||GC.titleBorder||'#00ff84','glowColor'));
+  optRow.appendChild(chk(d.shadow,'shadow','底部陰影'));
+  wrap.appendChild(optRow);
+
+
+
+  return wrap;
+}
+
+/* ── 圖片編輯器 ── */
+function buildImageEditor(b) {
+  var d=b.data;
+  var wrap=document.createElement('div'); wrap.style.cssText='display:flex;flex-direction:column;gap:8px';
+  var zone=document.createElement('div'); zone.className='img-zone';
+  zone.innerHTML='<div style="font-size:22px">&#11014;</div><div style="font-size:13px;color:#666;font-weight:600;margin-top:4px">點擊選擇或拖曳圖片</div>';
+  var fi=document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.style.display='none';
+  var prev=document.createElement('img'); prev.className='img-prev'; prev.style.display=d.src?'block':'none'; if(d.src)prev.src=d.src;
+  var clrBtn=document.createElement('button'); clrBtn.type='button'; clrBtn.className='add-btn'; clrBtn.textContent='移除圖片'; clrBtn.style.display=d.src?'inline-block':'none';
+  clrBtn.addEventListener('click',function(){ d.src=''; prev.src=''; prev.style.display='none'; clrBtn.style.display='none'; buildPreview(); });
+  zone.addEventListener('click',function(){ fi.click(); });
+  zone.addEventListener('dragover',function(e){ e.preventDefault(); zone.classList.add('dov'); });
+  zone.addEventListener('dragleave',function(){ zone.classList.remove('dov'); });
+  zone.addEventListener('drop',function(e){ e.preventDefault(); zone.classList.remove('dov'); var f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('image/'))loadFile(f); });
+  fi.addEventListener('change',function(){ if(fi.files[0])loadFile(fi.files[0]); });
+  function loadFile(f){ var r=new FileReader(); r.onload=function(e){ d.src=e.target.result; prev.src=d.src; prev.style.display='block'; clrBtn.style.display='inline-block'; buildPreview(); }; r.readAsDataURL(f); }
+  function mkO(l,el){ var rw=document.createElement('div'); rw.style.cssText='display:flex;flex-direction:column;gap:2px'; var lb=document.createElement('span'); lb.className='flbl'; lb.textContent=l; rw.appendChild(lb); rw.appendChild(el); return rw; }
+  var wI=document.createElement('input'); wI.className='finp'; wI.value=d.width||'100%'; wI.addEventListener('input',function(){ d.width=this.value; buildPreview(); });
+  var aS=document.createElement('select'); aS.className='smsel'; aS.style.width='100%';
+  [{v:'left',t:'靠左'},{v:'center',t:'置中'},{v:'right',t:'靠右'}].forEach(function(x){ var o=document.createElement('option'); o.value=x.v; o.textContent=x.t; if(x.v===d.align)o.selected=true; aS.appendChild(o); });
+  aS.addEventListener('change',function(){ d.align=this.value; buildPreview(); });
+  var rI=document.createElement('input'); rI.className='finp'; rI.value=d.borderRadius||'0'; rI.addEventListener('input',function(){ d.borderRadius=this.value; buildPreview(); });
+  var altI=document.createElement('input'); altI.className='finp'; altI.value=d.alt||''; altI.addEventListener('input',function(){ d.alt=this.value; });
+  var lnkI=document.createElement('input'); lnkI.className='finp'; lnkI.value=d.link||''; lnkI.placeholder='https://...'; lnkI.addEventListener('input',function(){ d.link=this.value; });
+  var og=document.createElement('div'); og.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:6px';
+  og.appendChild(mkO('寬度',wI)); og.appendChild(mkO('對齊',aS)); og.appendChild(mkO('圓角',rI)); og.appendChild(mkO('替代文字',altI));
+  wrap.appendChild(zone); wrap.appendChild(fi); wrap.appendChild(prev); wrap.appendChild(clrBtn); wrap.appendChild(og); wrap.appendChild(mkO('連結（選填）',lnkI));
+  return wrap;
+}
+
+/* ── 渲染區塊 ── */
+
+/* ── 區塊類型轉換 ── */
+var CONVERT_GROUPS = [
+  ['title','text','plaintext','terms'],  // 標題＋文字類可互換
+  ['table'],
+  ['image'],
+  ['linkbtn']
+];
+var CONVERT_LABELS = {
+  title:'標題', text:'文字區塊', plaintext:'無框文字', terms:'條款列表', table:'表格', linkbtn:'連結按鈕', image:'圖片'
+};
+
+function convertBlock(id, newType) {
+  var b = blocks.find(function(b){ return b.id===id; });
+  if(!b || b.type===newType) return;
+  var old = b.type;
+  // Extract best-effort text content to carry over
+  var carry = '';
+  if(old==='text'||old==='plaintext') carry = b.data.html||'';
+  else if(old==='terms') carry = b.data.text||'';
+  else if(old==='title') carry = b.data.text||'';
+
+  // Build new data based on target type, carrying over text where possible
+  var d;
+  if(newType==='text')       d={html:carry||'文字內容',align:'left'};
+  else if(newType==='plaintext') d={html:carry||'無框文字內容',color:'#ffffff',fontSize:'16',fontFamily:'Arial',align:'left',lineHeight:'1.7',bold:false,italic:false,underline:false,strike:false,shadow:false,shadowColor:'#000000',shadowBlur:4,shadowX:2,shadowY:2,textBg:false,textBgColor:'#000000',textBgPad:6,textBgRadius:6,border:false,borderColor:'#ffffff',borderWidth:2,borderRadius:8,borderPad:8,glow:false,glowColor:'#00ff84',glowSize:10};
+  else if(newType==='terms')  d={text:carry||'條款一\n條款二',align:'left'};
+  else if(newType==='title')  d={text:carry||'新標題',mode:'standard'};
+  else if(newType==='table')  d={title:'TABLE',ttype:'grid',ncols:2,cols:['欄位1','欄位2'],rows:[makeRow(2),makeRow(2)]};
+  else                        d={src:'',alt:'',width:'100%',align:'center',link:'',borderRadius:'0'};
+
+  b.type = newType;
+  b.data = d;
+  renderBlocks();
+}
+
+function getConvertOptions(type) {
+  for(var i=0;i<CONVERT_GROUPS.length;i++){
+    if(CONVERT_GROUPS[i].indexOf(type)!==-1) return CONVERT_GROUPS[i];
+  }
+  return [type];
+}
+
+function renderBlocks() {
+  var bl=document.getElementById('BL'); bl.innerHTML='';
+  blocks.forEach(function(b){
+    var card=document.createElement('div'); card.className='bcard type-'+b.type; card.draggable=true; card.dataset.id=b.id;
+    var hdr=document.createElement('div'); hdr.className='bhdr';
+    var grip=document.createElement('span'); grip.textContent='☰'; grip.style.cssText='color:rgba(255,255,255,.5);cursor:grab;font-size:13px;flex-shrink:0;margin-right:2px';
+    var badge=document.createElement('span'); badge.className='bbadge'; badge.textContent=TL[b.type];
+    var name=document.createElement('span'); name.className='bname'; name.textContent=getName(b);
+    var ub=document.createElement('button'); ub.type='button'; ub.className='hbtn'; ub.textContent='↑';
+    var db=document.createElement('button'); db.type='button'; db.className='hbtn'; db.textContent='↓';
+    var xl=document.createElement('button'); xl.type='button'; xl.className='hbtn del'; xl.textContent='✕';
+    ub.addEventListener('click',(function(bid){return function(e){e.stopPropagation();moveBlock(bid,-1);};})(b.id));
+    db.addEventListener('click',(function(bid){return function(e){e.stopPropagation();moveBlock(bid,1);};})(b.id));
+    xl.addEventListener('click',(function(bid){return function(e){e.stopPropagation();delBlock(bid);};})(b.id));
+    hdr.addEventListener('click',(function(bid){return function(){togBlock(bid);};})(b.id));
+    hdr.appendChild(grip); hdr.appendChild(badge); hdr.appendChild(name); hdr.appendChild(ub); hdr.appendChild(db);
+    /* ⇄ 類型轉換選單 */
+    var cvtOpts = getConvertOptions(b.type);
+    if(cvtOpts.length > 1){
+      var cvtSel = document.createElement('select');
+      cvtSel.title = '轉換區塊類型';
+      cvtSel.style.cssText = 'font-size:11px;padding:1px 3px;border-radius:4px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.15);color:#fff;cursor:pointer;flex-shrink:0;max-width:80px;';
+      cvtOpts.forEach(function(t){
+        var o = document.createElement('option');
+        o.value = t; o.textContent = CONVERT_LABELS[t]||t;
+        o.style.cssText = 'color:#222;background:#fff;';
+        if(t===b.type) o.selected = true;
+        cvtSel.appendChild(o);
+      });
+      cvtSel.addEventListener('change',(function(bid){ return function(e){
+        e.stopPropagation();
+        convertBlock(bid, this.value);
+      };})(b.id));
+      cvtSel.addEventListener('click', function(e){ e.stopPropagation(); });
+      hdr.appendChild(cvtSel);
+    }
+    hdr.appendChild(xl);
+    var body=document.createElement('div'); body.className='bbody'+(b.open?'':' closed');
+    if(b.type==='title'){
+      /* 模式選單 */
+      var tmRow=document.createElement('div'); tmRow.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;';
+      var tmLbl=document.createElement('span'); tmLbl.className='flbl'; tmLbl.textContent='樣式模式';
+      var tmSel=document.createElement('select'); tmSel.className='smsel';
+      var TM=[
+        {v:'standard', t:'🟩 標準（有框）'},
+        {v:'underline', t:'〰 底線'},
+        {v:'plain',     t:'無框文字'},
+        {v:'left',      t:'◀ 靠左'},
+        {v:'pill',      t:'💊 膠囊'},
+        {v:'side',      t:'▌ 左側線'}
+      ];
+      if(!b.data.mode) b.data.mode='standard';
+      TM.forEach(function(m){
+        var o=document.createElement('option'); o.value=m.v; o.textContent=m.t;
+        o.style.cssText='color:#222;background:#fff;';
+        if(m.v===b.data.mode) o.selected=true;
+        tmSel.appendChild(o);
+      });
+      tmSel.addEventListener('change',(function(bd){return function(){bd.mode=this.value;buildPreview();};})(b.data));
+      tmRow.appendChild(tmLbl); tmRow.appendChild(tmSel);
+      var l1=document.createElement('div'); l1.className='flbl'; l1.textContent='標題文字';
+      var i1=document.createElement('input'); i1.className='finp'; i1.value=b.data.text;
+      i1.addEventListener('input',(function(bd){return function(){bd.text=this.value;buildPreview();};})(b.data));
+      body.appendChild(tmRow); body.appendChild(l1); body.appendChild(i1);
+    }
+    else if(b.type==='text'){
+      var l2=document.createElement('div'); l2.className='flbl'; l2.textContent='內容（選取後可設顏色／連結）';
+      var alignRow2=document.createElement('div'); alignRow2.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:4px';
+      var alignLbl2=document.createElement('span'); alignLbl2.className='flbl'; alignLbl2.textContent='對齊：';
+      var aL2=document.createElement('button'); aL2.type='button'; aL2.className='rtbtn'; aL2.textContent='靠左';
+      var aC2=document.createElement('button'); aC2.type='button'; aC2.className='rtbtn'; aC2.textContent='置中';
+      var curA2=(b.data.align||'left');
+      function setAlignText2(v){ b.data.align=v; aL2.style.background=v==='left'?'#e0f0ff':'#fff'; aL2.style.borderColor=v==='left'?'#1a56a0':'#bbb'; aC2.style.background=v==='center'?'#e0f0ff':'#fff'; aC2.style.borderColor=v==='center'?'#1a56a0':'#bbb'; buildPreview(); }
+      aL2.addEventListener('click',function(){ setAlignText2('left'); });
+      aC2.addEventListener('click',function(){ setAlignText2('center'); });
+      alignRow2.appendChild(alignLbl2); alignRow2.appendChild(aL2); alignRow2.appendChild(aC2);
+      setAlignText2(curA2);
+      body.appendChild(l2); body.appendChild(alignRow2);
+      body.appendChild(buildRichEditor(b.data.html||'',(function(bd){return function(v){bd.html=v;buildPreview();};})(b.data)));
+    }
+    else if(b.type==='terms'){
+      var l3=document.createElement('div'); l3.className='flbl'; l3.textContent='條款（每行一條，網址自動連結）';
+      var alignRow3=document.createElement('div'); alignRow3.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:4px';
+      var alignLbl3=document.createElement('span'); alignLbl3.className='flbl'; alignLbl3.textContent='對齊：';
+      var aL3=document.createElement('button'); aL3.type='button'; aL3.className='rtbtn'; aL3.textContent='靠左';
+      var aC3=document.createElement('button'); aC3.type='button'; aC3.className='rtbtn'; aC3.textContent='置中';
+      var curA3=(b.data.align||'left');
+      function setAlignTerms(v){ b.data.align=v; aL3.style.background=v==='left'?'#e0f0ff':'#fff'; aL3.style.borderColor=v==='left'?'#1a56a0':'#bbb'; aC3.style.background=v==='center'?'#e0f0ff':'#fff'; aC3.style.borderColor=v==='center'?'#1a56a0':'#bbb'; buildPreview(); }
+      aL3.addEventListener('click',function(){ setAlignTerms('left'); });
+      aC3.addEventListener('click',function(){ setAlignTerms('center'); });
+      alignRow3.appendChild(alignLbl3); alignRow3.appendChild(aL3); alignRow3.appendChild(aC3);
+      setAlignTerms(curA3);
+      var ta=document.createElement('textarea'); ta.className='finp'; ta.style.minHeight='80px'; ta.value=b.data.text;
+      ta.addEventListener('input',(function(bd){return function(){bd.text=this.value;buildPreview();};})(b.data));
+      body.appendChild(l3); body.appendChild(alignRow3); body.appendChild(ta);
+    }
+    else if(b.type==='table'){ body.appendChild(buildTableEditor(b)); }
+    else if(b.type==='linkbtn'){ body.appendChild(buildLinkBtnEditor(b)); }
+    else if(b.type==='image'){ body.appendChild(buildImageEditor(b)); }
+    else if(b.type==='plaintext'){ body.appendChild(buildPlaintextEditor(b)); }
+    card.appendChild(hdr); card.appendChild(body); bl.appendChild(card);
+  });
+  setupDrag(); buildPreview();
+}
+
+/* ── 拖曳 ── */
+var _ds=null;
+function setupDrag(){
+  document.querySelectorAll('#BL .bcard').forEach(function(card){
+    card.addEventListener('dragstart',function(){ _ds=card; });
+    card.addEventListener('dragover',function(e){ e.preventDefault(); card.classList.add('dov'); });
+    card.addEventListener('dragleave',function(e){ if(!card.contains(e.relatedTarget)) card.classList.remove('dov'); });
+    card.addEventListener('drop',function(e){ e.preventDefault(); card.classList.remove('dov'); if(!_ds||_ds===card)return; var fi=blocks.findIndex(function(b){return b.id===parseInt(_ds.dataset.id);}), ti=blocks.findIndex(function(b){return b.id===parseInt(card.dataset.id);}); if(fi<0||ti<0)return; blocks.splice(ti,0,blocks.splice(fi,1)[0]); renderBlocks(); });
+    card.addEventListener('dragend',function(){ document.querySelectorAll('.dov').forEach(function(el){el.classList.remove('dov');}); });
+  });
+}
+
+/* ── HTML 生成 ── */
+function imgHTML(d){ if(!d.src)return ''; var img='<img src="'+d.src+'" alt="'+esc(d.alt||'')+'" style="width:'+d.width+';border-radius:'+d.borderRadius+';display:block;">'; if(d.link)img='<a href="'+esc(d.link)+'" target="_blank">'+img+'</a>'; return '<div style="text-align:'+d.align+';margin-bottom:20px;">'+img+'</div>'; }
+
+function buildTblHTML(d){
+  var c=GC, isKV=d.ttype==='kv', ncols=isKV?2:d.ncols;
+  var bid=d._bid||0;
+  var tsh='text-shadow:-1px -1px 0 '+c.tableCellText+',1px -1px 0 '+c.tableCellText+',-1px 1px 0 '+c.tableCellText+',1px 1px 0 '+c.tableCellText+',2px 2px 0 '+c.tableCellText+';';
+  /* 高亮專用陰影（10.html 風格）*/
+  var hlShadow='text-shadow:0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+';';
+  var htd='background:'+c.tableHeaderBg+';color:'+c.tableHeaderText+';font-size:clamp(12px,3vw,18px);padding:8px 6px;text-align:center;vertical-align:middle;word-break:break-word;white-space:normal;overflow-wrap:break-word;border-radius:8px 8px 0 0;';
+  var hst='background:'+c.tableHeaderBg+';color:'+c.tableHeaderText+';font-size:clamp(10px,2.5vw,15px);padding:7px 4px;text-align:center;vertical-align:middle;word-break:break-word;white-space:normal;overflow-wrap:break-word;';
+  var titleRow = d.title && d.title.trim() ? '<tr><td colspan="'+ncols+'" style="'+htd+'">'+esc(d.title)+'</td></tr>' : '';
+  var noTitle = !(d.title && d.title.trim());
+  function cst(ci,ri,row){
+    var k=_tKey(bid,ri,ci);
+    var isHL=!!TBL_HIGHLIGHT[k];
+    var hasBg=!!TBL_CELLBG[k];
+    var last=ri===d.rows.length-1;
+    var first=ri===0&&noTitle;
+    var sk=(row.sk&&row.sk[ci])||'custom';
+    var preset=null;
+    CELL_STYLES.forEach(function(s){ if(s.k===sk) preset=s; });
+    /* 底色：若有 cellBg 則用標題底色，否則原邏輯 */
+    var bg=hasBg ? c.tableHeaderBg : (row.bg[ci]||c.tableCellBg);
+    var fg, shadow;
+    if(isHL){
+      /* 高亮：用 tableValueText 顏色 + 10.html 光暈陰影 */
+      fg=c.tableValueText; shadow=true; tsh=hlShadow;
+    } else if(hasBg){
+      /* 標題底色：用 tableHeaderText */
+      fg=c.tableHeaderText; shadow=false;
+    } else if(preset && sk!=='custom'){
+      fg=preset.fg; shadow=preset.shadow;
+    } else {
+      fg=row.fg[ci]||(ci===0?c.tableCellText:c.tableValueText); shadow=(ci!==0);
+    }
+    var tsh2='text-shadow:-1px -1px 0 '+c.tableCellText+',1px -1px 0 '+c.tableCellText+',-1px 1px 0 '+c.tableCellText+',1px 1px 0 '+c.tableCellText+',2px 2px 0 '+c.tableCellText+';';
+    var topL=first&&ci===0?'border-radius:12px 0 0 0;':first&&ci===ncols-1?'border-radius:0 12px 0 0;':'';
+    if(first&&ncols===1) topL='border-radius:12px 12px 0 0;';
+    var botL=(last&&ci===0)?'border-radius:0 0 0 12px;':(last&&ci===ncols-1)?'border-radius:0 0 12px 0;':'';
+    if(first&&last&&ci===0){topL='';botL='border-radius:12px 0 0 12px;';}
+    if(first&&last&&ci===ncols-1){topL='';botL='border-radius:0 12px 12px 0;';}
+    var shadowStr=shadow?(isHL?hlShadow:tsh2):'';
+    return 'background:'+bg+';color:'+fg+';font-size:clamp(10px,2.5vw,15px);padding:7px 4px;text-align:center;vertical-align:middle;font-weight:bold;word-break:break-word;white-space:normal;overflow-wrap:break-word;'+shadowStr+topL+botL;
+  }
+  var rows=d.rows.map(function(row,ri){
+    return '<tr>'+row.cells.map(function(cell,ci){
+      if(_isTblHidden(bid,ri,ci)) return '';
+      var span=_getTblSpan(bid,ri,ci);
+      var cs=span?span.cs:1, rs=span?span.rs:1;
+      var colAttr=(cs>1?' colspan="'+cs+'"':'')+(rs>1?' rowspan="'+rs+'"':'');
+      var spanExtra=(cs>1||rs>1)?'vertical-align:middle;text-align:center;':'';
+      return '<td'+colAttr+' style="'+cst(ci,ri,row)+spanExtra+'">'+esc(cell)+'</td>';
+    }).join('')+'</tr>';
+  }).join('');
+  var hRow='';
+  if(!isKV){
+    /* 若所有欄位標題均為空白，整行隱藏 */
+    var anyColFilled = d.cols.some(function(col){ return col && col.trim(); });
+    if(anyColFilled){
+      var hCells=d.cols.map(function(col,ci){
+        if(_isHdrHidden(bid,ci)) return '';
+        var span=_getHdrSpan(bid,ci);
+        var cs=span?span.cs:1;
+        var colAttr=cs>1?' colspan="'+cs+'"':'';
+        /* 個別格也空白則隱藏（display:none 不適用 td，改用 visibility:hidden + 無內容） */
+        var isEmpty=!col||!col.trim();
+        if(isEmpty) return '<td'+colAttr+' style="'+hst+'width:'+Math.floor(100*cs/ncols)+'%;opacity:0;"></td>';
+        return '<td'+colAttr+' style="'+hst+'width:'+Math.floor(100*cs/ncols)+'%;">'+esc(col)+'</td>';
+      }).join('');
+      hRow='<tr>'+hCells+'</tr>';
+    }
+  }
+  return '<table style="width:100%;border-collapse:separate;border-spacing:3px;font-family:Arial,sans-serif;font-weight:bold;table-layout:fixed;font-size:clamp(10px,2.5vw,16px);"><tbody>'+titleRow+hRow+rows+'</tbody></table>';
+}
+
+
+function buildLinkBtnHTML(d) {
+  var align = d.align||'center';
+  var wrapAlign = align==='center'?'text-align:center;':(align==='right'?'text-align:right;':'text-align:left;');
+  var glowColor = d.glowColor || d.shadowColor || '#00ff84';
+  var shadow = '';
+  if(d.shadow || d.glow) {
+    shadow = 'box-shadow:'
+      + '0 0 8px 2px '+glowColor+'99,'       // 內光暈
+      + '0 0 20px 4px '+glowColor+'66,'       // 中光暈
+      + '0 0 40px 8px '+glowColor+'33,'       // 外光暈
+      + '0 4px 15px rgba(0,0,0,0.5);';        // 底部陰影
+  }
+  var style = [
+    'display:inline-block',
+    'background:'+(d.bgColor||'#e8a020'),
+    'color:'+(d.textColor||'#ffffff'),
+    'font-size:'+(d.fontSize||'18')+'px',
+    'font-weight:'+(d.fontWeight||'bold'),
+    'padding:'+(d.paddingV||'14')+'px '+(d.paddingH||'32')+'px',
+    'border-radius:'+(d.borderRadius||'30')+'px',
+    'text-decoration:none',
+    'border:none',
+    'cursor:pointer',
+    'letter-spacing:0.5px',
+    shadow,
+    'margin-top:20px',
+    'margin-bottom:20px'
+  ].join(';');
+  var url = (d.url||'#');
+  return '<div style="'+wrapAlign+'margin-top:16px;margin-bottom:20px;"><a href="'+url+'" target="_blank" style="'+style+'">'+esc(d.text||'按鈕')+'</a></div>';
+}
+
+function buildContent(){
+  var c=GC, parts=[], tbuf=[];
+  function flush(){ if(!tbuf.length)return; var inner=tbuf.map(function(d,i){return buildTblHTML(d)+(i<tbuf.length-1?'<div style="height:3px;background:'+c.separatorColor+';margin:0 6px;">&nbsp;</div>':'');}).join(''); parts.push('<div style="background:'+c.tableBg+';padding:6px;border-radius:18px;border:2px solid '+c.tableBorder+';margin-bottom:20px;">'+inner+'</div><p>&nbsp;</p>'); tbuf=[]; }
+  blocks.forEach(function(b){
+    if(b.type==='table'){b.data._bid=b.id;tbuf.push(b.data);return;} flush();
+    if(b.type==='title'){
+      var tm=b.data.mode||'standard', tt=esc(b.data.text), ts='';
+      if(tm==='standard') ts='background:'+c.titleBg+';color:'+c.titleText+';text-align:center;font-size:26px;font-weight:bold;padding:12px;border:2px solid '+c.titleBorder+';border-radius:12px;margin-bottom:15px;';
+      else if(tm==='underline') ts='background:transparent;color:'+c.titleText+';text-align:center;font-size:26px;font-weight:bold;padding:10px 12px;border-bottom:3px solid '+c.titleBorder+';margin-bottom:15px;';
+      else if(tm==='plain') ts='background:transparent;color:'+c.titleText+';text-align:center;font-size:26px;font-weight:bold;padding:8px;margin-bottom:15px;';
+      else if(tm==='left') ts='background:'+c.titleBg+';color:'+c.titleText+';text-align:left;font-size:26px;font-weight:bold;padding:12px 16px;border:2px solid '+c.titleBorder+';border-radius:12px;margin-bottom:15px;';
+      else if(tm==='pill') ts='background:'+c.titleBg+';color:'+c.titleText+';text-align:center;font-size:26px;font-weight:bold;padding:10px 24px;border:2px solid '+c.titleBorder+';border-radius:999px;margin-bottom:15px;display:inline-block;width:100%;box-sizing:border-box;';
+      else if(tm==='side') ts='background:transparent;color:'+c.titleText+';text-align:left;font-size:26px;font-weight:bold;padding:8px 14px;border-left:6px solid '+c.titleBorder+';margin-bottom:15px;';
+      parts.push('<div style="'+ts+'">' + tt + '</div>');}
+    else if(b.type==='text'){ var ta2=b.data.align==='center'?'center':'left'; parts.push('<div style="background:'+c.textBg+';color:'+c.textMain+';padding:18px;border-radius:12px;border:2px solid '+c.textBorder+';font-size:18px;line-height:1.7;font-weight:bold;margin-bottom:20px;text-align:'+ta2+';">'+(b.data.html||'')+'</div>'); }
+    else if(b.type==='terms'){ var ta3=b.data.align==='center'?'center':'left'; var html=b.data.text.split('\n').filter(function(l){return l.trim();}).map(function(l){ var t=l.trim(),m=t.match(/(https?:\/\/[^\s]+)/); if(m){var url=m[1],p=t.split(url);return '&bull; '+esc(p[0])+'<a href="'+url+'" style="color:'+c.textAccent+';text-decoration:none;font-weight:bold" target="_blank">'+url+'</a>'+esc(p[1]||'');} return '&bull; '+esc(t); }).join('<br/>'); parts.push('<div style="background:'+c.textBg+';color:'+c.textMain+';padding:18px;border-radius:12px;border:2px solid '+c.textBorder+';font-size:16px;line-height:1.8;font-weight:bold;word-break:break-word;text-align:'+ta3+';">'+html+'&nbsp;</div>'); }
+    else if(b.type==='linkbtn'){ parts.push(buildLinkBtnHTML(b.data)); }
+    else if(b.type==='image'){ var ih=imgHTML(b.data); if(ih)parts.push(ih); }
+    else if(b.type==='plaintext'){
+      var pd=b.data;
+      var ta4=pd.align==='center'?'center':pd.align==='right'?'right':'left';
+      var ptStyle='color:'+(pd.color||'#ffffff')+';font-size:'+(pd.fontSize||'16')+'px;font-family:'+(pd.fontFamily||'Arial')+',sans-serif;line-height:'+(pd.lineHeight||'1.7')+';margin-bottom:20px;text-align:'+ta4+';';
+      if(pd.bold) ptStyle+='font-weight:bold;';
+      if(pd.italic) ptStyle+='font-style:italic;';
+      if(pd.underline&&pd.strike) ptStyle+='text-decoration:underline line-through;';
+      else if(pd.underline) ptStyle+='text-decoration:underline;';
+      else if(pd.strike) ptStyle+='text-decoration:line-through;';
+      if(pd.textBg) ptStyle+='background:'+(pd.textBgColor||'#000000')+';padding:'+(pd.textBgPad||6)+'px;border-radius:'+(pd.textBgRadius||6)+'px;display:inline-block;width:100%;box-sizing:border-box;';
+      if(pd.border) ptStyle+='border:'+(pd.borderWidth||2)+'px solid '+(pd.borderColor||'#ffffff')+';border-radius:'+(pd.borderRadius||8)+'px;padding:'+(pd.borderPad||8)+'px;';
+      var tsh=[];
+      if(pd.shadow){ var sx=pd.shadowX||2,sy=pd.shadowY||2,sb=pd.shadowBlur||4,sc=pd.shadowColor||'#000000'; tsh.push(sx+'px '+sy+'px '+sb+'px '+sc); }
+      if(pd.glow){ var gc2=pd.glowColor||'#00ff84',gs=pd.glowSize||10; tsh.push('0 0 '+gs+'px '+gc2+',0 0 '+(gs*2)+'px '+gc2); }
+      if(tsh.length) ptStyle+='text-shadow:'+tsh.join(',')+';';
+      parts.push('<div style="'+ptStyle+'">'+(pd.html||'')+'</div>');
+    }
+  });
+  flush();
+  return '<!-- GC:'+JSON.stringify(GC)+' -->\n<div style="background:'+c.outerBg+';padding:15px;border:4px solid '+c.outerBorder+';border-radius:18px;font-family:Arial,sans-serif;max-width:680px;margin:auto;color:#fff;box-shadow:0 0 18px '+c.outerBorder+';">\n'+parts.join('\n')+'\n</div>';
+}
+
+function buildPreview(){ try{ document.getElementById('prev').innerHTML=buildContent().replace(/^<!--[\s\S]*?-->\n/,''); }catch(e){} }
+function showHTML(){ var h=buildContent(); document.getElementById('hout').textContent=h; document.getElementById('hout').style.display='block'; }
+function copyHTML(){ navigator.clipboard.writeText(buildContent()).then(function(){ alert('已複製至剪貼簿！'); }); showHTML(); }
+
+/* ── 匯入 ── */
+function importHTML(){
+  var raw=document.getElementById('imp-area').value.trim(), msg=document.getElementById('imp-msg');
+  if(!raw){ msg.textContent='請貼入 HTML'; return; }
+  try{
+    var gcM=raw.match(/<!--\s*GC:(\{[\s\S]*?\})\s*-->/);
+    if(gcM){ var parsed=JSON.parse(gcM[1]); Object.keys(parsed).forEach(function(k){ if(GC.hasOwnProperty(k)) GC[k]=parsed[k]; }); renderGColors(); }
+    var parser=new DOMParser(), doc=parser.parseFromString(raw,'text/html'), nb=[];
+    var outer=doc.querySelector('div[style*="border-radius:18px"]');
+    if(!outer){ msg.style.color='#c00'; msg.textContent='找不到有效結構'; return; }
+    Array.from(outer.children).forEach(function(el){
+      var st=el.getAttribute('style')||'';
+      if(el.tagName==='P') return;
+      if(el.tagName==='DIV'&&st.indexOf('border-radius:18px')>=0){
+        el.querySelectorAll('table').forEach(function(tbl){
+          var tc=tbl.querySelector('td[colspan]'), title=tc?tc.textContent.trim():'TABLE';
+          var ar=Array.from(tbl.querySelectorAll('tr')).slice(1), isKV=!(ar.length>0&&ar[0].querySelectorAll('td').length>2);
+          var cols=[],dr=ar;
+          if(!isKV&&ar.length>0){ cols=Array.from(ar[0].querySelectorAll('td')).map(function(td){return td.textContent.trim();}); dr=ar.slice(1); }
+          nb.push({id:nid(),type:'table',open:false,data:{title:title,ttype:isKV?'kv':'grid',ncols:isKV?2:(cols.length||2),cols:cols,rows:dr.map(function(tr){ var tds=Array.from(tr.querySelectorAll('td')); return {cells:tds.map(function(td){return td.textContent.trim();}),bg:tds.map(function(td){var m=(td.getAttribute('style')||'').match(/background:([^;]+)/);return m?m[1].trim():''}),fg:tds.map(function(td){var m=(td.getAttribute('style')||'').match(/(?:^|;)\s*color:([^;]+)/);return m?m[1].trim():''})}; })}});
+        });
+      } else if(st.indexOf('font-size:26px')>=0){ nb.push({id:nid(),type:'title',open:false,data:{text:el.textContent.trim()}});
+      } else if(st.indexOf('font-size:18px')>=0||st.indexOf('font-size:16px')>=0){ var iH=el.innerHTML; if(iH.indexOf('&bull;')>=0||iH.indexOf('\u2022')>=0){ nb.push({id:nid(),type:'terms',open:false,data:{text:(el.innerText||el.textContent).split('\n').map(function(l){return l.replace(/^[\u2022\s]+/,'').trim();}).filter(Boolean).join('\n'),align:'left'}}); } else { nb.push({id:nid(),type:'text',open:false,data:{html:iH,align:'left'}}); }
+      } else if(el.querySelector&&el.querySelector('img')){ var img2=el.querySelector('img'),a2=el.querySelector('a'); nb.push({id:nid(),type:'image',open:false,data:{src:img2?img2.src:'',alt:img2?img2.alt||'':'',width:img2?img2.style.width||'100%':'100%',align:'center',link:a2?a2.href:'',borderRadius:img2?img2.style.borderRadius||'0':'0'}}); }
+    });
+    if(nb.length>0){ blocks=nb; msg.style.color='#2e7d4f'; msg.textContent='成功載入 '+nb.length+' 個區塊！'; }
+    else{ msg.style.color='#c00'; msg.textContent='未找到可解析區塊'; }
+    renderBlocks();
+  } catch(e){ msg.style.color='#c00'; msg.textContent='解析失敗：'+e.message; }
+}
+
+/* ── 初始化 ── */
+/* 主題預設按鈕 */
+var themeBar = document.getElementById('theme-bar');
+Object.keys(THEMES).forEach(function(key){
+  var t = THEMES[key];
+  var btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'theme-btn';
+  btn.dataset.theme = key; btn.textContent = t.label;
+  btn.style.background = t.bg;
+  btn.addEventListener('click', function(){ applyTheme(key); });
+  themeBar.appendChild(btn);
+});
+
+/* 新增區塊按鈕 */
+var addBar = document.getElementById('add-bar');
+[{t:'標題',type:'title',cls:'at'},{t:'文字',type:'text',cls:'ax'},{t:'表格',type:'table',cls:'al'},{t:'條款',type:'terms',cls:'am'},{t:'圖片',type:'image',cls:'ai'},{t:'無框文字',type:'plaintext',cls:'ap'},{t:'連結按鈕',type:'linkbtn',cls:'ab'}].forEach(function(x){
+  var btn=document.createElement('button'); btn.type='button'; btn.className='abbtn '+x.cls; btn.textContent=x.t;
+  btn.addEventListener('click',function(){ addBlock(x.type); });
+  addBar.appendChild(btn);
+});
+document.getElementById('btn-out').addEventListener('click', showHTML);
+document.getElementById('btn-cp').addEventListener('click', copyHTML);
+document.getElementById('btn-imp').addEventListener('click', importHTML);
+
+applyTheme('green');
+renderBlocks();
+</script>
+</body>
+</html>
