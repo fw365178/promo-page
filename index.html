@@ -25,10 +25,11 @@ body{font-family:Arial,sans-serif;font-size:14px}
 .theme-btn{flex:1;padding:9px 4px;border:2px solid rgba(0,0,0,0.15);border-radius:9px;cursor:pointer;font-size:13px;font-weight:700;color:#fff;transition:transform .15s,box-shadow .15s,opacity .15s;letter-spacing:.3px}
 .bcard{border-radius:10px;overflow:hidden;margin-bottom:8px;border:2.5px solid #aaa}
 .bcard.dov{outline:3px dashed #4466ff}
-.bcard.type-title{border-color:#2e7d4f}.bcard.type-text{border-color:#1a56a0}.bcard.type-table{border-color:#b45309}.bcard.type-terms{border-color:#9d2a5e}.bcard.type-image{border-color:#6b21a8}.bcard.type-plaintext{border-color:#0891b2}
+.bcard.type-title{border-color:#2e7d4f}.bcard.type-text{border-color:#1a56a0}.bcard.type-table{border-color:#b45309}.bcard.type-terms{border-color:#9d2a5e}.bcard.type-image{border-color:#6b21a8}.bcard.type-plaintext{border-color:#0891b2}.bcard.type-turnover{border-color:#b91c1c}
 .bhdr{display:flex;align-items:center;gap:6px;padding:9px 11px;cursor:pointer;user-select:none}
 .type-title .bhdr{background:#2e7d4f}.type-text .bhdr{background:#1a56a0}.type-table .bhdr{background:#b45309}.type-terms .bhdr{background:#9d2a5e}.type-image .bhdr{background:#6b21a8}.type-plaintext .bhdr{background:#0891b2}
 .type-linkbtn .bhdr{background:#c2410c}
+.type-turnover .bhdr{background:#b91c1c}
 .bbadge{font-size:11px;padding:2px 6px;border-radius:4px;font-weight:700;background:rgba(255,255,255,.35);color:#fff;flex-shrink:0;text-shadow:0 1px 3px rgba(0,0,0,.8);letter-spacing:.3px}
 .bname{flex:1;font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 4px rgba(0,0,0,.9);letter-spacing:.2px}
 .hbtn{background:rgba(255,255,255,.2);border:none;cursor:pointer;color:#fff;font-size:13px;padding:2px 6px;border-radius:4px;flex-shrink:0}
@@ -52,7 +53,7 @@ textarea.finp{resize:vertical;min-height:68px;line-height:1.5}
 .add-bar{display:flex;gap:6px;flex-wrap:wrap}
 .abbtn{font-size:13px;padding:5px 11px;border-radius:8px;cursor:pointer;border:2px solid #bbb;background:#fff;color:#333;font-weight:700}
 .abbtn:hover{background:#f0f0f0}
-.abbtn.at{border-color:#2e7d4f;color:#2e7d4f}.abbtn.ax{border-color:#1a56a0;color:#1a56a0}.abbtn.al{border-color:#b45309;color:#b45309}.abbtn.am{border-color:#9d2a5e;color:#9d2a5e}.abbtn.ai{border-color:#6b21a8;color:#6b21a8}.abbtn.ap{border-color:#0891b2;color:#0891b2}
+.abbtn.at{border-color:#2e7d4f;color:#2e7d4f}.abbtn.ax{border-color:#1a56a0;color:#1a56a0}.abbtn.al{border-color:#b45309;color:#b45309}.abbtn.am{border-color:#9d2a5e;color:#9d2a5e}.abbtn.ai{border-color:#6b21a8;color:#6b21a8}.abbtn.ap{border-color:#0891b2;color:#0891b2}.abbtn.av{border-color:#b91c1c;color:#b91c1c}
 .outbtn{background:#222;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;color:#fff}
 .outbtn:hover{background:#444}
 #hout{display:none;background:#fff;border:1.5px solid #ccc;border-radius:8px;padding:8px;font-size:10px;font-family:monospace;overflow-x:auto;white-space:pre;color:#444;max-height:120px;overflow-y:auto}
@@ -72,7 +73,7 @@ textarea.finp{resize:vertical;min-height:68px;line-height:1.5}
 .img-zone:hover,.img-zone.dov{border-color:#6b21a8;background:#f5f0ff}
 .img-prev{width:100%;border-radius:6px;max-height:150px;object-fit:contain;display:block;background:#eee;margin-top:6px}
 .imp-box{background:#fff;border:2px solid #1a56a0;border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px}
-#imp-area{background:#fafafa;border:1.5px solid #bbb;border-radius:6px;padding:6px;font-size:11px;font-family:monospace;color:#222;width:100%;resize:vertical;min-height:70px}
+#imp-area,#imp-area2{background:#fafafa;border:1.5px solid #bbb;border-radius:6px;padding:6px;font-size:11px;font-family:monospace;color:#222;width:100%;resize:vertical;min-height:70px}
 
 /* x-span-panel inputs: no inherited white shadow */
 .x-span-panel input[type=number] {
@@ -94,20 +95,46 @@ textarea.finp{resize:vertical;min-height:68px;line-height:1.5}
   <button id="gc-toggle" type="button">▶ 顏色設定（點擊展開）</button>
   <div id="theme-bar" style="display:flex;gap:6px"></div>
   <div id="gc-body"><div class="gc-grid" id="gc-grid"></div></div>
+  <div class="sl">雙語模式</div>
+  <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap;">
+    <label style="display:flex;align-items:center;gap:4px;font-size:12px;color:#ddd;cursor:pointer;">
+      <input type="checkbox" id="dual-toggle"> 🌐 雙語同時顯示＋編輯
+    </label>
+    <select id="dual-label" class="finp" style="flex:1;min-width:100px;font-size:12px;">
+      <option value="nepali">🇳🇵 Nepali（自動翻譯）</option>
+      <option value="bengali">🇧🇩 Bengali（自動翻譯）</option>
+      <option value="tagalog">🇵🇭 Tagalog（自動翻譯）</option>
+    </select>
+  </div>
   <div class="sl">區塊列表（拖曳排序）</div>
   <div id="BL"></div>
   <div class="sl">新增區塊</div>
   <div class="add-bar" id="add-bar"></div>
-  <div class="sl" style="margin-top:4px">輸出 / 匯入</div>
+  <div class="sl" style="margin-top:4px">輸出 / 匯入（支援雙語）</div>
   <div style="display:flex;gap:6px">
-    <button class="outbtn" id="btn-out" style="flex:1">輸出 HTML</button>
-    <button class="outbtn" id="btn-cp" style="flex:1;background:#555">複製 HTML</button>
+    <button class="outbtn" id="btn-out" style="flex:1">輸出 HTML（雙語合併）</button>
+    <button class="outbtn" id="btn-cp" style="flex:1;background:#555">複製 HTML（雙語合併）</button>
+  </div>
+  <div id="dual-out-box" style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">
+    <div style="font-size:11px;color:#888;">可分別輸出／複製單一語言：</div>
+    <div style="display:flex;gap:6px">
+      <button class="outbtn" id="btn-out-p" style="flex:1;background:#0a8a5c;">輸出 English</button>
+      <button class="outbtn" id="btn-cp-p" style="flex:1;background:#0a6b46;">複製 English</button>
+    </div>
+    <div style="display:flex;gap:6px">
+      <button class="outbtn" id="btn-out-s" style="flex:1;background:#0891b2;">輸出<span id="dual-out-s-label">第二語言</span></button>
+      <button class="outbtn" id="btn-cp-s" style="flex:1;background:#066a85;">複製<span id="dual-cp-s-label">第二語言</span></button>
+    </div>
   </div>
   <div id="hout"></div>
   <div class="imp-box">
     <div class="flbl">匯入 HTML（貼入後點解析）</div>
-    <textarea id="imp-area" placeholder="貼上 HTML..."></textarea>
-    <button class="outbtn" id="btn-imp" style="background:#1a56a0">解析並載入</button>
+    <div style="font-size:11px;color:#888;margin-bottom:4px;">🌐 雙語匯入：兩格分別貼上各語言的 HTML（第二語言可留空），或直接貼上本工具「輸出 HTML」產生的雙語整段內容到主要語言格，會自動偵測分開還原。</div>
+    <div class="flbl" style="margin-top:2px;">主要語言 HTML</div>
+    <textarea id="imp-area" placeholder="貼上主要語言 HTML..."></textarea>
+    <div class="flbl" style="margin-top:6px;">第二語言 HTML（選填）</div>
+    <textarea id="imp-area2" placeholder="貼上第二語言 HTML（沒有可留空）..."></textarea>
+    <button class="outbtn" id="btn-imp" style="background:#1a56a0;margin-top:6px;">解析並載入</button>
     <div id="imp-msg" style="font-size:12px;color:#888"></div>
   </div>
 </div>
@@ -130,6 +157,23 @@ gcToggleBtn.addEventListener('click', function() {
 var _uid = 0;
 function nid() { return ++_uid; }
 function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── 雙語模式 ── */
+var DUAL = false;
+var DUAL_LANG = 'nepali';
+var DUAL_LANG_NAMES = {nepali:'Nepali', bengali:'Bengali', tagalog:'Tagalog'};
+var DUAL_LABEL = DUAL_LANG_NAMES[DUAL_LANG];
+function pick(primary, secondary, useSec){
+  if(!useSec) return primary||'';
+  if(secondary!=null && secondary!=='') return secondary;
+  return translate(primary||'', DUAL_LANG);
+}
+function _updateDualOutBox(){
+  var l1=document.getElementById('dual-out-s-label'), l2=document.getElementById('dual-cp-s-label');
+  if(l1) l1.textContent=DUAL_LABEL; if(l2) l2.textContent=DUAL_LABEL;
+}
+document.getElementById('dual-toggle').addEventListener('change', function(){ DUAL = this.checked; _updateDualOutBox(); renderBlocks(); });
+document.getElementById('dual-label').addEventListener('change', function(){ DUAL_LANG = this.value; DUAL_LABEL = DUAL_LANG_NAMES[DUAL_LANG]; _updateDualOutBox(); renderBlocks(); });
 
 /* ── 全域顏色 ── */
 var GCP = ['#000000','#ffffff','#003b24','#006b3f','#00ff84','#ffe600','#ff4444','#169b75','#106b4f','#1a56a0','#b45309','#cc44cc'];
@@ -291,12 +335,12 @@ var blocks = [
     {cells:['3rd','120%','\u09f312,000'],bg:['','',''],fg:['','',''],sk:['custom','custom','yellow-shadow']}
   ]}},
   {id:nid(),type:'title',open:false,data:{text:'Example of Turnover Calculation'}},
-  {id:nid(),type:'text',open:false,data:{html:'Calculation Example: Deposit 300 BDT + get 300 BDT(100%) bonus.<br/><br/>Your Turnover target = <span style="color:#ffe600;">(300+300)\xd715=9,000 BDT</span>',align:'left'}},
+  {id:nid(),type:'turnover',open:false,data:{deposit:'',bonusFixed:'',bonusPercent:'',turnoverX:'',text:'',text2:'',pasteText:'',align:'left',displayMode:'table'}},
   {id:nid(),type:'title',open:false,data:{text:'Terms & Conditions'}},
   {id:nid(),type:'terms',open:false,data:{text:"This promotion is available for all new BDT players.\nThis promotion is eligible for Slots\u3001Crash games only.\nThis promotion cannot be used in conjunction with any other promotional offer.\nPlayers who create multiple or fraudulent accounts will be disqualified.\nDeposit and Bonus has 15x Wagering Requirement before withdrawal.\nSome products are excluded. Refer here: https://ozwin365guide.com/\nOZWin365 reserves the right to modify or cancel this promotion.\nOZWin365's Terms & Conditions apply.",align:'left'}}
 ];
 
-var TL={title:'標題',text:'文字區塊',table:'表格',terms:'條款列表',image:'圖片',plaintext:'無框文字',linkbtn:'連結按鈕'};
+var TL={title:'標題',text:'文字區塊',table:'表格',terms:'條款列表',image:'圖片',plaintext:'無框文字',linkbtn:'連結按鈕',turnover:'流水計算'};
 
 var CELL_STYLES = [
   {k:'yellow-shadow', l:'🟡 黃字＋陰影',  fg:'#ffe600', shadow:true},
@@ -308,37 +352,69 @@ var CELL_STYLES = [
 ];
 
 function getCellStyleKey(row, ci) { return (row.sk && row.sk[ci]) || 'custom'; }
-function makeRow(n){ return {cells:Array(n).fill(''),bg:Array(n).fill(''),fg:Array(n).fill(''),sk:Array(n).fill('custom')}; }
+function makeRow(n){ return {cells:Array(n).fill(''),cells2:Array(n).fill(''),bg:Array(n).fill(''),fg:Array(n).fill(''),sk:Array(n).fill('custom')}; }
 function ensureRow(r,n){
   while(r.cells.length<n){r.cells.push('');r.bg.push('');r.fg.push('');(r.sk=r.sk||[]).push('custom');}
   r.cells.length=n;r.bg.length=n;r.fg.length=n;
   if(!r.sk){r.sk=Array(n).fill('custom');}else{while(r.sk.length<n)r.sk.push('custom');r.sk.length=n;}
+  if(!r.cells2) r.cells2=Array(n).fill('');
+  while(r.cells2.length<n) r.cells2.push('');
+  r.cells2.length=n;
 }
 function getName(b){
   if(b.type==='table') return b.data.title||'表格';
   if(b.type==='image') return b.data.src?'圖片(已上傳)':'圖片(未上傳)';
   if(b.type==='linkbtn') return '🔗 '+(b.data.text||'連結按鈕');
+  if(b.type==='turnover') return '💰 流水：存'+(b.data.deposit||'?')+' / 倍數'+(b.data.turnoverX||'?');
   return (b.type==='text'||b.type==='plaintext'?b.data.html||'':b.data.text||'').replace(/<[^>]+>/g,'').slice(0,20)||'(空白)';
 }
 function addBlock(type){
   var d;
-  if(type==='title') d={text:'新標題',mode:'standard'};
-  else if(type==='text') d={html:'文字內容',align:'left'};
-  else if(type==='table') d={title:'TABLE',ttype:'grid',ncols:2,cols:['欄位1','欄位2'],rows:[makeRow(2),makeRow(2)]};
-  else if(type==='terms') d={text:'條款一\n條款二',align:'left'};
-  else if(type==='plaintext') d={html:'無框文字內容',color:'#ffffff',fontSize:'16',fontFamily:'Arial',align:'left',lineHeight:'1.7',bold:false,italic:false,underline:false,strike:false,shadow:false,shadowColor:'#000000',shadowBlur:4,shadowX:2,shadowY:2,textBg:false,textBgColor:'#000000',textBgPad:6,textBgRadius:6,border:false,borderColor:'#ffffff',borderWidth:2,borderRadius:8,borderPad:8,glow:false,glowColor:'#00ff84',glowSize:10};
-  else if(type==='linkbtn') d={text:'按鈕文字',url:'https://',align:'center',bgColor:GC.titleBg||'#006b3f',textColor:GC.titleText||'#ffffff',fontSize:'18',fontWeight:'bold',borderRadius:'30',paddingV:'14',paddingH:'32',shadow:true,shadowColor:GC.titleBorder||'#00ff84',glow:true,glowColor:GC.titleBorder||'#00ff84',width:'auto'};
+  if(type==='title') d={text:'新標題',text2:'',mode:'standard'};
+  else if(type==='text') d={html:'文字內容',html2:'',align:'left'};
+  else if(type==='table') d={title:'TABLE',title2:'',ttype:'grid',ncols:2,cols:['欄位1','欄位2'],cols2:['',''],rows:[makeRow(2),makeRow(2)]};
+  else if(type==='terms') d={text:'條款一\n條款二',text2:'',align:'left',listStyle:'bullet'};
+  else if(type==='plaintext') d={html:'無框文字內容',html2:'',color:'#ffffff',fontSize:'16',fontFamily:'Arial',align:'left',lineHeight:'1.7',bold:false,italic:false,underline:false,strike:false,shadow:false,shadowColor:'#000000',shadowBlur:4,shadowX:2,shadowY:2,textBg:false,textBgColor:'#000000',textBgPad:6,textBgRadius:6,border:false,borderColor:'#ffffff',borderWidth:2,borderRadius:8,borderPad:8,glow:false,glowColor:'#00ff84',glowSize:10};
+  else if(type==='linkbtn') d={text:'按鈕文字',text2:'',url:'https://',align:'center',bgColor:GC.titleBg||'#006b3f',textColor:GC.titleText||'#ffffff',fontSize:'18',fontWeight:'bold',borderRadius:'30',paddingV:'14',paddingH:'32',shadow:true,shadowColor:GC.titleBorder||'#00ff84',glow:true,glowColor:GC.titleBorder||'#00ff84',width:'auto'};
+  else if(type==='turnover') d={deposit:'',bonusFixed:'',bonusPercent:'',turnoverX:'',text:'',text2:'',pasteText:'',align:'left',displayMode:'table'};
   else d={src:'',alt:'',width:'100%',align:'center',link:'',borderRadius:'0'};
   blocks.push({id:nid(),type:type,open:true,data:d}); renderBlocks();
 }
 function delBlock(id){ if(!confirm('確定刪除？'))return; blocks=blocks.filter(function(b){return b.id!==id;}); renderBlocks(); }
+function clearBlock(id){
+  var b=blocks.find(function(b){return b.id===id;}); if(!b)return;
+  if(!confirm('確定清除此區塊的內容？（樣式設定會保留）'))return;
+  var d=b.data;
+  if(b.type==='title'){ d.text=''; d.text2=''; }
+  else if(b.type==='text'){ d.html=''; d.html2=''; }
+  else if(b.type==='terms'){ d.text=''; d.text2=''; }
+  else if(b.type==='plaintext'){ d.html=''; d.html2=''; }
+  else if(b.type==='linkbtn'){ d.text=''; d.text2=''; }
+  else if(b.type==='turnover'){ d.deposit=''; d.bonusFixed=''; d.bonusPercent=''; d.turnoverX=''; d.text=''; d.text2=''; d.pasteText=''; }
+  else if(b.type==='image'){ d.src=''; d.alt=''; }
+  else if(b.type==='table'){
+    d.title=''; d.title2='';
+    d.cols=d.cols.map(function(){return '';});
+    if(d.cols2) d.cols2=d.cols2.map(function(){return '';});
+    d.rows.forEach(function(r){
+      r.cells=r.cells.map(function(){return '';});
+      if(r.cells2) r.cells2=r.cells2.map(function(){return '';});
+    });
+  }
+  renderBlocks();
+}
+function copyBlock(id){ var b=blocks.find(function(b){return b.id===id;}); if(!b)return; var nb=JSON.parse(JSON.stringify(b)); nb.id=nid(); var i=blocks.findIndex(function(b){return b.id===id;}); blocks.splice(i+1,0,nb); renderBlocks(); }
 function moveBlock(id,dir){ var i=blocks.findIndex(function(b){return b.id===id;}),j=i+dir; if(j<0||j>=blocks.length)return; var t=blocks[i];blocks[i]=blocks[j];blocks[j]=t; renderBlocks(); }
 function togBlock(id){ var b=blocks.find(function(b){return b.id===id;}); if(b){b.open=!b.open;renderBlocks();} }
 function resizeCols(id,n){
   var b=blocks.find(function(b){return b.id===id;}); if(!b)return;
-  n=Math.max(1,Math.min(6,n)); b.data.ncols=n;
+  n=Math.max(1,n); b.data.ncols=n;
   while(b.data.cols.length<n) b.data.cols.push('欄'+(b.data.cols.length+1));
-  b.data.cols.length=n; b.data.rows.forEach(function(r){ensureRow(r,n);}); renderBlocks();
+  b.data.cols.length=n;
+  if(!b.data.cols2) b.data.cols2=b.data.cols.map(function(){return '';});
+  while(b.data.cols2.length<n) b.data.cols2.push('');
+  b.data.cols2.length=n;
+  b.data.rows.forEach(function(r){ensureRow(r,n);}); renderBlocks();
 }
 
 /* ── 富文字編輯器 ── */
@@ -533,6 +609,11 @@ function buildPlaintextEditor(b) {
   var contentLbl=document.createElement('div'); contentLbl.className='flbl'; contentLbl.textContent='內容（選取後可套用顏色／連結）';
   wrap.appendChild(contentLbl);
   wrap.appendChild(buildRichEditor(d.html||'',function(v){ d.html=v; buildPreview(); }));
+  if(DUAL){
+    var contentLbl2=document.createElement('div'); contentLbl2.className='flbl'; contentLbl2.style.color='#0891b2'; contentLbl2.textContent='🌐 '+DUAL_LABEL+' 內容';
+    wrap.appendChild(contentLbl2);
+    wrap.appendChild(buildRichEditor(pick(d.html||'', d.html2, true),function(v){ d.html2=v; buildPreview(); }));
+  }
   return wrap;
 }
 
@@ -557,7 +638,9 @@ var TBL_GLOSSARY = {
     ["CRICKET","क्रिकेट"],["TABLE","टेबल खेल"],["ARCADE","आर्केड"],
     ["SLOT & FISHING","स्लट र माछा पकड़्नु"],["AMOUNT","रकम"],
     ["1X","१X"],["100%","१००%"],["5%","५%"],["8%","८%"],["12%","१२%"],
-    ["रु100","रु१००"],["रु500","रु५००"],["रु1,000","रु१,०००"],["UNLIMITED","असीमित"]
+    ["रु100","रु१००"],["रु500","रु५००"],["रु1,000","रु१,०००"],["UNLIMITED","असीमित"],
+    ["How to Participate?","सहभागी हुने तरिका?"],["Requirements","आवश्यकताहरू"],
+    ["Example of Turnover Calculation","टर्नओभर गणनाको उदाहरण"],["Terms & Conditions","नियम तथा सर्तहरू"]
   ],
   bengali: [
     ["PROMOTION","প্রচার"],["GAME TYPES","গেমের ধরন"],["GAME","গেম"],
@@ -574,7 +657,9 @@ var TBL_GLOSSARY = {
     ["CRICKET","ক্রিকেট"],["TABLE","টেবিল"],["ARCADE","আর্কেড"],
     ["SLOT & FISHING","স্লট এবং ফিশিং"],["AMOUNT","পরিমাণ"],
     ["1X","১X"],["100%","১০০%"],["5%","৫%"],["8%","৮%"],["12%","১২%"],
-    ["रु100","৳১০০"],["रु500","৳৫০০"],["रु1,000","৳১,০০০"]
+    ["रु100","৳১০০"],["रु500","৳৫০০"],["रु1,000","৳১,০০০"],
+    ["How to Participate?","কীভাবে অংশ নেবেন?"],["Requirements","প্রয়োজনীয়তা"],
+    ["Example of Turnover Calculation","টার্নওভার হিসাবের উদাহরণ"],["Terms & Conditions","শর্ত ও নিয়মাবলি"]
   ],
   tagalog: [
     ["PROMOTION","PROMOSYON"],["GAME TYPES","URI NG LARO"],["GAME","LARO"],
@@ -594,6 +679,116 @@ var TBL_GLOSSARY = {
     ["रु100","100 PHP"],["रु500","500 PHP"],["रु1,000","1,000 PHP"]
   ]
 };
+
+/* ── 自動翻譯邏輯（仿「格格.html」TRANSLATIONS / convertDigits）──
+   用 TBL_GLOSSARY 做英文→第二語言詞彙對照，未命中則嘗試數字轉換，
+   再未命中則原文照搬（使用者仍可在輸入框手動覆寫）。 */
+var TBL_GLOSSARY_MAP = null;
+function _buildGlossaryMap(){
+  TBL_GLOSSARY_MAP = {};
+  Object.keys(TBL_GLOSSARY).forEach(function(lang){
+    var map = {};
+    TBL_GLOSSARY[lang].forEach(function(pair){ map[pair[0]] = pair[1]; });
+    TBL_GLOSSARY_MAP[lang] = map;
+  });
+}
+var DIGIT_MAP = {
+  nepali:  ['०','१','२','३','४','५','६','७','८','९'],
+  bengali: ['০','১','২','৩','৪','৫','৬','৭','৮','৯']
+};
+function _convertDigits(text, lang){
+  var d = DIGIT_MAP[lang];
+  if(!d) return text;
+  return String(text).replace(/[0-9]/g, function(n){ return d[parseInt(n,10)]; });
+}
+function translate(text, lang){
+  if(text==null || text==='') return text||'';
+  if(!TBL_GLOSSARY_MAP) _buildGlossaryMap();
+  var map = TBL_GLOSSARY_MAP[lang];
+  if(map){
+    if(map[text]!==undefined) return map[text];
+    var upper = String(text).toUpperCase();
+    if(map[upper]!==undefined) return map[upper];
+  }
+  if(lang==='nepali' || lang==='bengali') return _convertDigits(text, lang);
+  return text;
+}
+
+/* ── 流水計算機區塊 用：數字格式化與多語句型（仿「index_8.html 流水計算機」邏輯）── */
+function _fmtIntl(n){ return Number(n||0).toLocaleString('en-US',{maximumFractionDigits:2}); }
+function _fmtSA(n){
+  n = Math.round(n||0);
+  var sign = n<0?'-':''; n=Math.abs(n);
+  var s = n.toString();
+  if(s.length<=3) return sign+s;
+  var last3=s.slice(-3), rest=s.slice(0,-3).replace(/\B(?=(\d{2})+(?!\d))/g,',');
+  return sign+rest+','+last3;
+}
+var TURNOVER_CURRENCY_MAP = {nepali:'NPR', bengali:'BDT', tagalog:'PHP'};
+function getTurnoverCurrency(){ return TURNOVER_CURRENCY_MAP[DUAL_LANG] || 'BDT'; }
+function calcTurnoverVals(d){
+  var deposit=parseFloat(d.deposit)||0, bonusFixed=parseFloat(d.bonusFixed)||0, bonusPercent=parseFloat(d.bonusPercent)||0, turnoverX=parseFloat(d.turnoverX)||0;
+  var bonus = bonusFixed + deposit*bonusPercent/100;
+  var total = (deposit+bonus)*turnoverX;
+  return {deposit:deposit,bonus:bonus,turnover:turnoverX,total:total,bonusPercent:bonusPercent,currency:getTurnoverCurrency()};
+}
+function calcTurnoverText(lang, v){
+  var cur=v.currency||'BDT';
+  if(lang==='bengali'){
+    var d=_convertDigits(_fmtIntl(v.deposit),'bengali'), b=_convertDigits(_fmtIntl(v.bonus),'bengali'), t=_convertDigits(_fmtIntl(v.turnover),'bengali'), tot=_convertDigits(_fmtIntl(v.total),'bengali'), p=_convertDigits(_fmtIntl(v.bonusPercent),'bengali');
+    return d+' '+cur+' জমা দিন + '+b+' ('+p+'%) বোনাস পান।\nআপনার টার্নওভারের লক্ষ্যমাত্রা = ('+d+' + '+b+') × '+t+' = '+tot+' '+cur;
+  }
+  if(lang==='nepali'){
+    var d2=_convertDigits(_fmtSA(v.deposit),'nepali'), b2=_convertDigits(_fmtSA(v.bonus),'nepali'), t2=_convertDigits(_fmtSA(v.turnover),'nepali'), tot2=_convertDigits(_fmtSA(v.total),'nepali'), p2=_convertDigits(_fmtSA(v.bonusPercent),'nepali');
+    return 'जम्मा '+d2+' '+cur+' + '+b2+' '+cur+' बोनस ('+p2+' %) प्राप्त।तपाईंको कारोबार लक्ष्य = ('+d2+' + '+b2+') × '+t2+' = '+tot2+' '+cur;
+  }
+  if(lang==='tagalog'){
+    var d3=_fmtIntl(v.deposit), b3=_fmtIntl(v.bonus), t3=_fmtIntl(v.turnover), tot3=_fmtIntl(v.total), p3=_fmtIntl(v.bonusPercent);
+    return 'Mag-deposito ng '+d3+' '+cur+' + kumuha ng '+b3+' '+cur+' ('+p3+'%) bonus.\nAng iyong Turnover target = ('+d3+'+'+b3+')×'+t3+'='+tot3+' '+cur;
+  }
+  var de=_fmtIntl(v.deposit), be=_fmtIntl(v.bonus), te=_fmtIntl(v.turnover), tote=_fmtIntl(v.total), pe=_fmtIntl(v.bonusPercent);
+  return 'Deposit '+de+' '+cur+' + get '+be+' '+cur+'('+pe+'%) bonus.\nYour Turnover target = ('+de+'+'+be+')×'+te+'='+tote+' '+cur;
+}
+function calcTurnoverTableData(lang, v){
+  var cur=v.currency;
+  if(lang==='bengali'){
+    var pct=_convertDigits(_fmtIntl(v.bonusPercent),'bengali');
+    var d=_convertDigits(_fmtIntl(v.deposit),'bengali'), b=_convertDigits(_fmtIntl(v.bonus),'bengali'), t=_convertDigits(_fmtIntl(v.turnover),'bengali'), tot=_convertDigits(_fmtIntl(v.total),'bengali');
+    return {headers:['জমা','বোনাস ('+pct+'%)','টার্নওভার','লক্ষ্য'], cells:['('+d+cur,'+'+b+cur+')','×'+t,'='+tot+cur]};
+  }
+  if(lang==='nepali'){
+    var pct2=_convertDigits(_fmtSA(v.bonusPercent),'nepali');
+    var d2=_convertDigits(_fmtSA(v.deposit),'nepali'), b2=_convertDigits(_fmtSA(v.bonus),'nepali'), t2=_convertDigits(_fmtSA(v.turnover),'nepali'), tot2=_convertDigits(_fmtSA(v.total),'nepali');
+    return {headers:['जम्मा','बोनस ('+pct2+'%)','कारोबार','लक्ष्य'], cells:['('+d2+cur,'+'+b2+cur+')','×'+t2,'='+tot2+cur]};
+  }
+  if(lang==='tagalog'){
+    var pct3=_fmtIntl(v.bonusPercent);
+    var d3=_fmtIntl(v.deposit), b3=_fmtIntl(v.bonus), t3=_fmtIntl(v.turnover), tot3=_fmtIntl(v.total);
+    return {headers:['DEPOSITO','BONUS ('+pct3+'%)','TURNOVER','TARGET'], cells:['('+d3+cur,'+'+b3+cur+')','×'+t3,'='+tot3+cur]};
+  }
+  var pcte=_fmtIntl(v.bonusPercent);
+  var de2=_fmtIntl(v.deposit), be2=_fmtIntl(v.bonus), te2=_fmtIntl(v.turnover), tote2=_fmtIntl(v.total);
+  return {headers:['DEPOSIT','BONUS ('+pcte+'%)','TURNOVER','TARGET'], cells:['('+de2+cur,'+'+be2+cur+')','×'+te2,'='+tote2+cur]};
+}
+function buildTurnoverTableHTML(td){
+  var c=GC;
+  var n=td.headers.length;
+  var tsh2='text-shadow:-1px -1px 0 '+c.tableCellText+',1px -1px 0 '+c.tableCellText+',-1px 1px 0 '+c.tableCellText+',1px 1px 0 '+c.tableCellText+',2px 2px 0 '+c.tableCellText+';';
+  function hCell(ci){
+    var corner = ci===0 ? 'border-radius:12px 0 0 0;' : ci===n-1 ? 'border-radius:0 12px 0 0;' : '';
+    return 'background:'+c.tableHeaderBg+';color:'+c.tableHeaderText+';font-size:clamp(10px,2.5vw,15px);padding:7px 4px;text-align:center;vertical-align:middle;word-break:break-word;white-space:normal;overflow-wrap:break-word;'+corner;
+  }
+  function dCell(ci){
+    var isLast = ci===td.cells.length-1;
+    var fg = isLast ? c.tableValueText : c.tableCellText;
+    var shadowStr = isLast ? tsh2 : '';
+    var corner = ci===0 ? 'border-radius:0 0 0 12px;' : ci===n-1 ? 'border-radius:0 0 12px 0;' : '';
+    return 'background:'+c.tableCellBg+';color:'+fg+';font-size:clamp(10px,2.5vw,15px);padding:7px 4px;text-align:center;vertical-align:middle;word-break:break-word;white-space:normal;overflow-wrap:break-word;'+shadowStr+corner;
+  }
+  var hRow=td.headers.map(function(h,ci){return '<td style="'+hCell(ci)+'">'+esc(h)+'</td>';}).join('');
+  var dRow=td.cells.map(function(v2,ci){return '<td style="'+dCell(ci)+'">'+esc(v2)+'</td>';}).join('');
+  return '<div style="background:'+c.tableBg+';padding:6px;border-radius:18px;border:2px solid '+c.tableBorder+';margin-bottom:20px;"><table style="width:100%;border-collapse:separate;border-spacing:3px;font-family:Arial,sans-serif;font-weight:bold;table-layout:fixed;font-size:clamp(10px,2.5vw,16px);"><tbody><tr>'+hRow+'</tr><tr>'+dRow+'</tr></tbody></table></div>';
+}
 
 var _glossaryLang = 'nepali';   // 目前詞條語言
 var _glossaryTarget = null;     // 目前目標 input（點「📋」時記錄）
@@ -843,8 +1038,37 @@ function _showSpanPanel(bid,ri,ci,anchorEl){
 }
 
 /* ── 表格編輯器 ── */
+function applySheetPaste(id, text){
+  var b=blocks.find(function(b){return b.id===id;}); if(!b) return;
+  var d=b.data;
+  var lines=text.replace(/\r/g,'').split('\n').filter(function(l){return l.length>0;});
+  if(!lines.length) return;
+  var rowsRaw=lines.map(function(l){return l.split('\t');});
+  var ncols=Math.max.apply(null, rowsRaw.map(function(r){return r.length;}));
+  ncols=Math.max(1,ncols);
+  var headers=rowsRaw[0].map(function(c){return c.trim();});
+  while(headers.length<ncols) headers.push('');
+  var dataRows=rowsRaw.slice(1);
+  d.ttype='grid';
+  d.ncols=ncols;
+  d.cols=headers;
+  d.cols2=headers.map(function(){return '';});
+  d.rows=dataRows.map(function(r){
+    var cells=r.map(function(c){return c.trim();});
+    while(cells.length<ncols) cells.push('');
+    cells.length=ncols;
+    return {cells:cells, cells2:Array(ncols).fill(''), bg:Array(ncols).fill(''), fg:Array(ncols).fill(''), sk:Array(ncols).fill('custom')};
+  });
+  if(!d.rows.length) d.rows=[makeRow(ncols)];
+  renderBlocks();
+}
+
 function buildTableEditor(b) {
   var d=b.data, id=b.id, isKV=d.ttype==='kv', ncols=isKV?2:d.ncols;
+  if(!d.cols2) d.cols2=d.cols.map(function(){return '';});
+  while(d.cols2.length<d.cols.length) d.cols2.push('');
+  d.cols2.length=d.cols.length;
+  if(d.title2==null) d.title2='';
   var wrap=document.createElement('div'); wrap.style.cssText='display:flex;flex-direction:column;gap:8px';
   var top=document.createElement('div'); top.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap';
   var tl=document.createElement('span'); tl.className='flbl'; tl.textContent='標題';
@@ -852,10 +1076,44 @@ function buildTableEditor(b) {
   ti.addEventListener('input',(function(dd){return function(){dd.title=this.value;buildPreview();};})(d));
   var ts=document.createElement('select'); ts.className='smsel';
   [{v:'kv',t:'左標題＋右值'},{v:'grid',t:'多欄表格'}].forEach(function(x){ var o=document.createElement('option'); o.value=x.v; o.textContent=x.t; if(x.v===d.ttype)o.selected=true; ts.appendChild(o); });
-  ts.addEventListener('change',function(){ d.ttype=this.value; if(d.ttype==='kv') d.rows=d.rows.map(function(r){return {cells:[r.cells[0]||'',r.cells[1]||''],bg:['',''],fg:['','']};});renderBlocks(); });
+  ts.addEventListener('change',function(){ d.ttype=this.value; if(d.ttype==='kv') d.rows=d.rows.map(function(r){return {cells:[r.cells[0]||'',r.cells[1]||''],cells2:[r.cells2&&r.cells2[0]||'',r.cells2&&r.cells2[1]||''],bg:['',''],fg:['','']};});renderBlocks(); });
   top.appendChild(tl); top.appendChild(ti); top.appendChild(ts);
-  if(!isKV){ var nl=document.createElement('span'); nl.className='flbl'; nl.textContent='欄數'; var ni=document.createElement('input'); ni.type='number'; ni.className='smnum'; ni.min=1; ni.max=6; ni.value=ncols; ni.addEventListener('input',(function(bid){return function(){resizeCols(bid,parseInt(this.value)||2);};})(id)); top.appendChild(nl); top.appendChild(ni); }
+  if(!isKV){ var nl=document.createElement('span'); nl.className='flbl'; nl.textContent='欄數'; var ni=document.createElement('input'); ni.type='number'; ni.className='smnum'; ni.min=1; ni.value=ncols; ni.addEventListener('input',(function(bid){return function(){resizeCols(bid,parseInt(this.value)||2);};})(id)); top.appendChild(nl); top.appendChild(ni); }
   wrap.appendChild(top);
+  if(DUAL){
+    var top2=document.createElement('div'); top2.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+    var tl2=document.createElement('span'); tl2.className='flbl'; tl2.style.color='#0891b2'; tl2.textContent='🌐 '+DUAL_LABEL+' 標題';
+    var ti2=document.createElement('input'); ti2.className='finp'; ti2.style.cssText='flex:1;min-width:70px;border-color:#0891b2;'; ti2.value=pick(d.title||'', d.title2, true);
+    ti2.addEventListener('input',(function(dd){return function(){dd.title2=this.value;buildPreview();};})(d));
+    top2.appendChild(tl2); top2.appendChild(ti2);
+    wrap.appendChild(top2);
+  }
+
+  /* ── 貼上 Google Sheets 表格資料 ── */
+  var pasteWrap=document.createElement('div'); pasteWrap.style.cssText='display:flex;flex-direction:column;gap:6px;';
+  var pasteBtn=document.createElement('button'); pasteBtn.type='button'; pasteBtn.className='outbtn'; pasteBtn.style.cssText='font-size:12px;padding:5px 10px;background:#0a8a5c;align-self:flex-start;'; pasteBtn.textContent='📋 貼上 Google Sheets 表格資料';
+  var pasteArea=document.createElement('div'); pasteArea.style.cssText='display:none;flex-direction:column;gap:6px;background:#f4faf7;border:1.5px solid #0a8a5c;border-radius:8px;padding:8px;';
+  var pasteHint=document.createElement('div'); pasteHint.style.cssText='font-size:11px;color:#555;'; pasteHint.textContent='從 Google Sheets／Excel 選取範圍（含標題列）複製，再貼到下方文字框，第一列會當作欄位標題，套用後會「取代」此表格目前內容。';
+  var pasteTa=document.createElement('textarea'); pasteTa.className='finp'; pasteTa.style.minHeight='90px'; pasteTa.placeholder='在此貼上（Ctrl+V）從 Google Sheets 複製的表格資料...';
+  var pasteBtnRow=document.createElement('div'); pasteBtnRow.style.cssText='display:flex;gap:6px;';
+  var pasteApply=document.createElement('button'); pasteApply.type='button'; pasteApply.className='outbtn'; pasteApply.style.cssText='font-size:12px;padding:4px 10px;background:#1a56a0;'; pasteApply.textContent='套用並取代表格內容';
+  var pasteCancel=document.createElement('button'); pasteCancel.type='button'; pasteCancel.className='outbtn'; pasteCancel.style.cssText='font-size:12px;padding:4px 10px;background:#888;'; pasteCancel.textContent='取消';
+  pasteBtnRow.appendChild(pasteApply); pasteBtnRow.appendChild(pasteCancel);
+  pasteArea.appendChild(pasteHint); pasteArea.appendChild(pasteTa); pasteArea.appendChild(pasteBtnRow);
+  pasteBtn.addEventListener('click',function(){
+    var show = pasteArea.style.display==='none';
+    pasteArea.style.display = show ? 'flex' : 'none';
+    if(show) pasteTa.focus();
+  });
+  pasteCancel.addEventListener('click',function(){ pasteArea.style.display='none'; pasteTa.value=''; });
+  pasteApply.addEventListener('click',(function(bid){return function(){
+    var txt=pasteTa.value;
+    if(!txt.trim()){ alert('請先貼上資料'); return; }
+    if(!confirm('將取代此表格目前所有內容（標題列／欄位／儲存格），確定套用？')) return;
+    applySheetPaste(bid, txt);
+  };})(id));
+  pasteWrap.appendChild(pasteBtn); pasteWrap.appendChild(pasteArea);
+  wrap.appendChild(pasteWrap);
 
   /* 提示文字 */
   var tip=document.createElement('div');
@@ -915,12 +1173,27 @@ function buildTableEditor(b) {
   }
   hg.appendChild(document.createElement('span')); wrap.appendChild(hg);
 
+  if(DUAL && !isKV){
+    var hg2=document.createElement('div'); hg2.style.cssText='display:flex;gap:3px;margin-bottom:6px;align-items:center;';
+    d.cols.forEach(function(c,ci){
+      if(_isHdrHidden(id,ci)) return;
+      var span=_getHdrSpan(id,ci);
+      var cs=span?span.cs:1;
+      var inp2=document.createElement('input'); inp2.className='th-inp';
+      inp2.placeholder='🌐'+DUAL_LABEL; inp2.style.cssText='width:100%;box-sizing:border-box;border-color:#0891b2;flex:'+cs+';min-width:0;';
+      inp2.value=pick(c||'', d.cols2[ci], true);
+      inp2.addEventListener('input',(function(dd,c2){return function(){dd.cols2[c2]=this.value;buildPreview();};})(d,ci));
+      hg2.appendChild(inp2);
+    });
+    hg2.appendChild(document.createElement('span')); wrap.appendChild(hg2);
+  }
+
   d.rows.forEach(function(row,ri){
     if(_isTblHidden(id,ri,0) && ncols===1) return; // skip fully hidden rows (span)
     var rg=document.createElement('div'); rg.style.cssText='border:1px solid #ddd;border-radius:7px;padding:7px;margin-bottom:5px;background:#fafafa';
 
     /* ── 儲存格輸入列（原本 UI）── */
-    var cg=document.createElement('div'); cg.style.cssText='display:grid;gap:3px;margin-bottom:4px;align-items:center'; cg.style.gridTemplateColumns='repeat('+ncols+',1fr) 28px';
+    var cg=document.createElement('div'); cg.style.cssText='display:grid;gap:3px;margin-bottom:4px;align-items:center'; cg.style.gridTemplateColumns='repeat('+ncols+',1fr) 28px 28px';
     row.cells.forEach(function(cell,ci){
       if(_isTblHidden(id,ri,ci)) return;
       var inp=document.createElement('input'); inp.className='td-inp'+(ci>0?' td-y':''); inp.value=cell;
@@ -944,7 +1217,28 @@ function buildTableEditor(b) {
       cg.appendChild(cellWrap);
     });
     var rd=document.createElement('button'); rd.type='button'; rd.className='row-del'; rd.textContent='✕'; rd.addEventListener('click',(function(dd,ri2){return function(){dd.rows.splice(ri2,1);renderBlocks();};})(d,ri)); cg.appendChild(rd);
+    /* ── 複製行按鈕 ── */
+    var rcb=document.createElement('button'); rcb.type='button'; rcb.className='row-del'; rcb.style.cssText='background:#2a6496;border-color:#1a4a76;'; rcb.textContent='⧉'; rcb.title='複製此行';
+    rcb.addEventListener('click',(function(dd,ri2,n2){return function(){
+      var src=dd.rows[ri2];
+      var nr={cells:src.cells.slice(),cells2:(src.cells2?src.cells2.slice():Array(n2).fill('')),bg:src.bg.slice(),fg:src.fg.slice(),sk:(src.sk?src.sk.slice():Array(n2).fill('custom'))};
+      dd.rows.splice(ri2+1,0,nr);renderBlocks();
+    };})(d,ri,ncols)); cg.appendChild(rcb);
     rg.appendChild(cg);
+
+    if(DUAL){
+      if(!row.cells2) row.cells2=row.cells.map(function(){return '';});
+      var cg2=document.createElement('div'); cg2.style.cssText='display:grid;gap:3px;margin-bottom:4px;align-items:center'; cg2.style.gridTemplateColumns='repeat('+ncols+',1fr) 28px';
+      row.cells.forEach(function(cell,ci){
+        if(_isTblHidden(id,ri,ci)) return;
+        var inp2=document.createElement('input'); inp2.className='td-inp'+(ci>0?' td-y':''); inp2.style.borderColor='#0891b2'; inp2.placeholder='🌐'+DUAL_LABEL;
+        inp2.value=pick(cell||'', row.cells2&&row.cells2[ci], true);
+        inp2.addEventListener('input',(function(r,c){return function(){ if(!r.cells2)r.cells2=[]; r.cells2[c]=this.value; buildPreview(); };})(row,ci));
+        cg2.appendChild(inp2);
+      });
+      cg2.appendChild(document.createElement('span'));
+      rg.appendChild(cg2);
+    }
 
     /* ── 新增：底色 + 跨格 小按鈕列 ── */
     var xbar=document.createElement('div'); xbar.style.cssText='display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px;';
@@ -1000,9 +1294,29 @@ function buildTableEditor(b) {
     rg.appendChild(cr); wrap.appendChild(rg);
   });
 
+  /* ── 新增行區域（含文字樣式選擇） ── */
+  var abWrap=document.createElement('div'); abWrap.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:4px;';
+  var abLbl=document.createElement('span'); abLbl.className='flbl'; abLbl.textContent='新增行樣式';
+  var abSel=document.createElement('select'); abSel.className='smsel';
+  /* 使用與儲存格相同的文字樣式清單 */
+  CELL_STYLES.forEach(function(s){ var o=document.createElement('option'); o.value=s.k; o.textContent=s.l; abSel.appendChild(o); });
   var ab=document.createElement('button'); ab.type='button'; ab.className='add-btn'; ab.textContent='+ 新增行';
-  ab.addEventListener('click',(function(dd,n){return function(){dd.rows.push(makeRow(n));renderBlocks();};})(d,ncols));
-  wrap.appendChild(ab); return wrap;
+  ab.addEventListener('click',(function(dd,n,sel){return function(){
+    var nr=makeRow(n);
+    var sk=sel.value;
+    var preset=null;
+    CELL_STYLES.forEach(function(s){ if(s.k===sk) preset=s; });
+    if(preset && sk!=='custom'){
+      for(var ci=0;ci<n;ci++){
+        nr.sk[ci]=sk;
+        nr.fg[ci]=preset.fg;
+        nr.bg[ci]='';
+      }
+    }
+    dd.rows.push(nr);renderBlocks();
+  };})(d,ncols,abSel));
+  abWrap.appendChild(abLbl); abWrap.appendChild(abSel); abWrap.appendChild(ab);
+  wrap.appendChild(abWrap); return wrap;
 }
 
 /* ── 連結按鈕編輯器 ── */
@@ -1042,6 +1356,10 @@ function buildLinkBtnEditor(b) {
 
   // 按鈕文字
   wrap.appendChild(row('按鈕文字', inp(d.text, 'text', 'flex:1;min-width:100px;')));
+  if(DUAL){
+    var dualRow = row('🌐 '+DUAL_LABEL+' 文字', inp(pick(d.text||'', d.text2, true), 'text2', 'flex:1;min-width:100px;border-color:#0891b2;'));
+    wrap.appendChild(dualRow);
+  }
   // 超連結 URL
   wrap.appendChild(row('連結 URL', inp(d.url, 'url', 'flex:1;min-width:140px;font-size:12px;')));
   // 對齊
@@ -1086,6 +1404,143 @@ function buildLinkBtnEditor(b) {
   wrap.appendChild(optRow);
 
 
+
+  return wrap;
+}
+
+/* ── 流水計算機區塊編輯器 ── */
+function buildTurnoverEditor(b) {
+  var d=b.data;
+  var wrap=document.createElement('div'); wrap.style.cssText='display:flex;flex-direction:column;gap:8px';
+
+  function row(label, el){ var r=document.createElement('div'); r.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap;'; var l=document.createElement('span'); l.className='flbl'; l.textContent=label; r.appendChild(l); r.appendChild(el); return r; }
+  function numInp(val,key,style){ var i=document.createElement('input'); i.type='number'; i.className='finp'; i.value=val; if(style) i.style.cssText=style; i.addEventListener('input',function(){ d[key]=this.value; updateAndPreview(); }); return i; }
+  function txtInp(val,key,style){ var i=document.createElement('input'); i.className='finp'; i.value=val; if(style) i.style.cssText=style; i.addEventListener('input',function(){ d[key]=this.value; updateAndPreview(); }); return i; }
+
+  var preEn, preSec, tBoxEn, tBoxSec;
+  function updateAndPreview(){
+    var v=calcTurnoverVals(d);
+    if(d.displayMode==='table'){
+      if(tBoxEn) tBoxEn.innerHTML=buildTurnoverTableHTML(calcTurnoverTableData('english',v));
+      if(tBoxSec) tBoxSec.innerHTML=buildTurnoverTableHTML(calcTurnoverTableData(DUAL_LANG,v));
+    } else {
+      if(preEn && !d.text) preEn.textContent = calcTurnoverText('english', v);
+      if(preSec && !d.text2) preSec.textContent = calcTurnoverText(DUAL_LANG, v);
+    }
+    buildPreview();
+  }
+
+  /* 顯示樣式：文字 / 表格 */
+  if(!d.displayMode) d.displayMode='table';
+  var modeRow=document.createElement('div'); modeRow.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:2px;';
+  var modeLbl=document.createElement('span'); modeLbl.className='flbl'; modeLbl.textContent='顯示樣式：';
+  var modeText=document.createElement('button'); modeText.type='button'; modeText.className='rtbtn'; modeText.textContent='📝 文字';
+  var modeTable=document.createElement('button'); modeTable.type='button'; modeTable.className='rtbtn'; modeTable.textContent='▦ 表格';
+  function paintModeBtns(){
+    modeText.style.background=d.displayMode==='text'?'#e0f0ff':'#fff'; modeText.style.borderColor=d.displayMode==='text'?'#b91c1c':'#bbb';
+    modeTable.style.background=d.displayMode==='table'?'#e0f0ff':'#fff'; modeTable.style.borderColor=d.displayMode==='table'?'#b91c1c':'#bbb';
+  }
+  modeText.addEventListener('click',function(){ if(d.displayMode!=='text'){ d.displayMode='text'; renderBlocks(); } });
+  modeTable.addEventListener('click',function(){ if(d.displayMode!=='table'){ d.displayMode='table'; renderBlocks(); } });
+  paintModeBtns();
+  modeRow.appendChild(modeLbl); modeRow.appendChild(modeTable); modeRow.appendChild(modeText);
+  wrap.appendChild(modeRow);
+
+  /* 4個數值輸入 + 幣別 */
+  var grid=document.createElement('div'); grid.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+  function cell(label,el){ var c=document.createElement('div'); var l=document.createElement('div'); l.className='flbl'; l.textContent=label; c.appendChild(l); c.appendChild(el); return c; }
+  var depositInp = numInp(d.deposit,'deposit','width:100%;');
+  var turnoverInp = numInp(d.turnoverX,'turnoverX','width:100%;');
+  var bonusPercentInp = numInp(d.bonusPercent,'bonusPercent','width:100%;');
+  var bonusFixedInp = numInp(d.bonusFixed,'bonusFixed','width:100%;');
+  grid.appendChild(cell('存款金額 (MIN DEPOSIT)', depositInp));
+  grid.appendChild(cell('流水倍數 (TURNOVER)', turnoverInp));
+  grid.appendChild(cell('獎金 % (BONUS %)', bonusPercentInp));
+  grid.appendChild(cell('獎金固定金額（選填）', bonusFixedInp));
+  wrap.appendChild(grid);
+  wrap.appendChild(row('幣別', (function(){ var s=document.createElement('span'); s.style.cssText='font-weight:700;color:#b91c1c;'; s.textContent=getTurnoverCurrency()+'（自動依上方語言設定）'; return s; })()));
+
+  /* 對齊 */
+  var alSel=document.createElement('select'); alSel.className='smsel';
+  [{v:'left',t:'靠左'},{v:'center',t:'置中'}].forEach(function(x){ var o=document.createElement('option'); o.value=x.v; o.textContent=x.t; o.style.cssText='color:#222;background:#fff;'; if(x.v===d.align) o.selected=true; alSel.appendChild(o); });
+  alSel.addEventListener('change',function(){ d.align=this.value; buildPreview(); });
+  wrap.appendChild(row('對齊', alSel));
+
+  /* 貼上 Google Sheets 內容（仿 index_8.html 流水計算機） */
+  var pasteWrap=document.createElement('div'); pasteWrap.style.cssText='display:flex;flex-direction:column;gap:4px;margin-top:4px;';
+  var pasteLbl=document.createElement('div'); pasteLbl.className='flbl'; pasteLbl.textContent='貼上 Google Sheets 內容（Tab分隔，自動帶入上方欄位）';
+  var pasteTa=document.createElement('textarea'); pasteTa.className='finp'; pasteTa.style.minHeight='70px'; pasteTa.style.fontFamily='monospace'; pasteTa.style.fontSize='12px';
+  pasteTa.placeholder='貼上後會自動計算，例如：\nBONUS %\t250%\nMIN DEPOSIT\t100\nTURNOVER\t37';
+  pasteTa.value = d.pasteText||'';
+  pasteTa.addEventListener('input',function(){
+    d.pasteText = this.value;
+    var lines=this.value.split('\n').map(function(l){return l.trim();}).filter(Boolean);
+    var data={};
+    lines.forEach(function(line){
+      var cols=line.split('\t').map(function(c){return c.trim();});
+      if(cols.length>=2){ data[cols[0].toUpperCase().replace(/\s+/g,' ').trim()]=cols[1]; }
+    });
+    if(data['MIN DEPOSIT']!=null){ d.deposit=parseFloat(data['MIN DEPOSIT'])||0; depositInp.value=d.deposit; }
+    var bp=data['BONUS %']!=null?data['BONUS %']:data['BONUS%'];
+    if(bp!=null){ d.bonusPercent=parseFloat(String(bp).replace('%',''))||0; bonusPercentInp.value=d.bonusPercent; }
+    if(data['TURNOVER']!=null){ d.turnoverX=parseFloat(data['TURNOVER'])||0; turnoverInp.value=d.turnoverX; }
+    updateAndPreview();
+  });
+  pasteWrap.appendChild(pasteLbl); pasteWrap.appendChild(pasteTa);
+  wrap.appendChild(pasteWrap);
+
+  if(d.displayMode==='table'){
+    var tPrevEn=document.createElement('div'); tPrevEn.style.cssText='margin-top:6px;';
+    var tLblEn=document.createElement('div'); tLblEn.className='flbl'; tLblEn.textContent='表格預覽（English，自動計算）';
+    tBoxEn=document.createElement('div'); tBoxEn.innerHTML=buildTurnoverTableHTML(calcTurnoverTableData('english',calcTurnoverVals(d)));
+    tPrevEn.appendChild(tLblEn); tPrevEn.appendChild(tBoxEn);
+    wrap.appendChild(tPrevEn);
+    if(DUAL){
+      var tPrevSec=document.createElement('div'); tPrevSec.style.cssText='margin-top:6px;';
+      var tLblSec=document.createElement('div'); tLblSec.className='flbl'; tLblSec.style.color='#0891b2'; tLblSec.textContent='表格預覽（'+DUAL_LABEL+'，自動翻譯）';
+      tBoxSec=document.createElement('div'); tBoxSec.innerHTML=buildTurnoverTableHTML(calcTurnoverTableData(DUAL_LANG,calcTurnoverVals(d)));
+      tPrevSec.appendChild(tLblSec); tPrevSec.appendChild(tBoxSec);
+      wrap.appendChild(tPrevSec);
+    }
+    var tHint=document.createElement('div'); tHint.style.cssText='font-size:11px;color:#888;'; tHint.textContent='表格模式內容為自動計算，欄位標題與數值會隨上方輸入即時更新（暫不支援手動覆寫文字）。';
+    wrap.appendChild(tHint);
+    return wrap;
+  }
+
+  /* 即時預覽（主要語言／第二語言），旁邊有 ✏️ 鉛筆按鈕可手動覆寫文字 */
+  function buildEditablePreview(label, autoTextFn, overrideKey, borderColor){
+    var box=document.createElement('div'); box.style.cssText='margin-top:6px;display:flex;flex-direction:column;gap:4px;';
+    var head=document.createElement('div'); head.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:6px;';
+    var lbl=document.createElement('div'); lbl.className='flbl'; if(borderColor) lbl.style.color=borderColor; lbl.textContent=label;
+    var editBtn=document.createElement('button'); editBtn.type='button'; editBtn.title='手動修改'; editBtn.textContent='✏️';
+    editBtn.style.cssText='border:1px solid '+(borderColor||'#bbb')+';background:#fff;border-radius:6px;cursor:pointer;font-size:12px;padding:2px 7px;line-height:1.4;flex-shrink:0;';
+    head.appendChild(lbl); head.appendChild(editBtn);
+    var pre=document.createElement('div'); pre.style.cssText='padding:10px;border:1.5px solid '+(borderColor||'#ddd')+';border-radius:8px;background:'+(borderColor?'#f4faf7':'#fafafa')+';white-space:pre-line;font-size:13px;font-weight:600;';
+    pre.textContent = d[overrideKey] || autoTextFn();
+    var ta=document.createElement('textarea'); ta.className='finp'; ta.style.minHeight='60px'; ta.style.display='none'; if(borderColor) ta.style.borderColor=borderColor;
+    ta.value=d[overrideKey]||''; ta.placeholder='留空＝自動計算／自動翻譯；填寫則覆寫顯示內容';
+    ta.addEventListener('input',function(){ d[overrideKey]=this.value; pre.textContent=this.value||autoTextFn(); buildPreview(); });
+    editBtn.addEventListener('click',function(){
+      var show = ta.style.display==='none';
+      ta.style.display = show?'block':'none';
+      editBtn.style.background = show?'#fffbe6':'#fff';
+      if(show){ ta.focus(); }
+    });
+    box.appendChild(head); box.appendChild(pre); box.appendChild(ta);
+    return {box:box, pre:pre, ta:ta};
+  }
+
+  var enResult = buildEditablePreview('範例說明（English，自動計算）', function(){ return calcTurnoverText('english', calcTurnoverVals(d)); }, 'text', null);
+  preEn = enResult.pre;
+  wrap.appendChild(enResult.box);
+
+  if(DUAL){
+    var secResult = buildEditablePreview('範例說明（'+DUAL_LABEL+'，自動翻譯）', function(){ return calcTurnoverText(DUAL_LANG, calcTurnoverVals(d)); }, 'text2', '#0891b2');
+    preSec = secResult.pre;
+    wrap.appendChild(secResult.box);
+  } else {
+    preSec = null;
+  }
 
   return wrap;
 }
@@ -1174,12 +1629,16 @@ function renderBlocks() {
     var name=document.createElement('span'); name.className='bname'; name.textContent=getName(b);
     var ub=document.createElement('button'); ub.type='button'; ub.className='hbtn'; ub.textContent='↑';
     var db=document.createElement('button'); db.type='button'; db.className='hbtn'; db.textContent='↓';
+    var cpb=document.createElement('button'); cpb.type='button'; cpb.className='hbtn'; cpb.textContent='⧉'; cpb.title='複製區塊';
+    var clb=document.createElement('button'); clb.type='button'; clb.className='hbtn'; clb.textContent='🧹'; clb.title='清除內容';
     var xl=document.createElement('button'); xl.type='button'; xl.className='hbtn del'; xl.textContent='✕';
     ub.addEventListener('click',(function(bid){return function(e){e.stopPropagation();moveBlock(bid,-1);};})(b.id));
     db.addEventListener('click',(function(bid){return function(e){e.stopPropagation();moveBlock(bid,1);};})(b.id));
+    cpb.addEventListener('click',(function(bid){return function(e){e.stopPropagation();copyBlock(bid);};})(b.id));
+    clb.addEventListener('click',(function(bid){return function(e){e.stopPropagation();clearBlock(bid);};})(b.id));
     xl.addEventListener('click',(function(bid){return function(e){e.stopPropagation();delBlock(bid);};})(b.id));
     hdr.addEventListener('click',(function(bid){return function(){togBlock(bid);};})(b.id));
-    hdr.appendChild(grip); hdr.appendChild(badge); hdr.appendChild(name); hdr.appendChild(ub); hdr.appendChild(db);
+    hdr.appendChild(grip); hdr.appendChild(badge); hdr.appendChild(name); hdr.appendChild(ub); hdr.appendChild(db); hdr.appendChild(cpb); hdr.appendChild(clb);
     /* ⇄ 類型轉換選單 */
     var cvtOpts = getConvertOptions(b.type);
     if(cvtOpts.length > 1){
@@ -1228,6 +1687,12 @@ function renderBlocks() {
       var i1=document.createElement('input'); i1.className='finp'; i1.value=b.data.text;
       i1.addEventListener('input',(function(bd){return function(){bd.text=this.value;buildPreview();};})(b.data));
       body.appendChild(tmRow); body.appendChild(l1); body.appendChild(i1);
+      if(DUAL){
+        var l1b=document.createElement('div'); l1b.className='flbl'; l1b.style.color='#0891b2'; l1b.textContent='🌐 '+DUAL_LABEL+' 標題';
+        var i1b=document.createElement('input'); i1b.className='finp'; i1b.style.borderColor='#0891b2'; i1b.value=pick(b.data.text||'', b.data.text2, true);
+        i1b.addEventListener('input',(function(bd){return function(){bd.text2=this.value;buildPreview();};})(b.data));
+        body.appendChild(l1b); body.appendChild(i1b);
+      }
     }
     else if(b.type==='text'){
       var l2=document.createElement('div'); l2.className='flbl'; l2.textContent='內容（選取後可設顏色／連結）';
@@ -1243,6 +1708,11 @@ function renderBlocks() {
       setAlignText2(curA2);
       body.appendChild(l2); body.appendChild(alignRow2);
       body.appendChild(buildRichEditor(b.data.html||'',(function(bd){return function(v){bd.html=v;buildPreview();};})(b.data)));
+      if(DUAL){
+        var l2b=document.createElement('div'); l2b.className='flbl'; l2b.style.color='#0891b2'; l2b.textContent='🌐 '+DUAL_LABEL+' 內容';
+        body.appendChild(l2b);
+        body.appendChild(buildRichEditor(pick(b.data.html||'', b.data.html2, true),(function(bd){return function(v){bd.html2=v;buildPreview();};})(b.data)));
+      }
     }
     else if(b.type==='terms'){
       var l3=document.createElement('div'); l3.className='flbl'; l3.textContent='條款（每行一條，網址自動連結）';
@@ -1256,13 +1726,31 @@ function renderBlocks() {
       aC3.addEventListener('click',function(){ setAlignTerms('center'); });
       alignRow3.appendChild(alignLbl3); alignRow3.appendChild(aL3); alignRow3.appendChild(aC3);
       setAlignTerms(curA3);
+      /* 條列樣式：• 點 / 1. 數字 */
+      var lsRow3=document.createElement('div'); lsRow3.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:4px';
+      var lsLbl3=document.createElement('span'); lsLbl3.className='flbl'; lsLbl3.textContent='條列樣式：';
+      var lsBullet=document.createElement('button'); lsBullet.type='button'; lsBullet.className='rtbtn'; lsBullet.textContent='• 點';
+      var lsNumber=document.createElement('button'); lsNumber.type='button'; lsNumber.className='rtbtn'; lsNumber.textContent='1. 數字';
+      if(!b.data.listStyle) b.data.listStyle='bullet';
+      function setListStyle(v){ b.data.listStyle=v; lsBullet.style.background=v==='bullet'?'#e0f0ff':'#fff'; lsBullet.style.borderColor=v==='bullet'?'#1a56a0':'#bbb'; lsNumber.style.background=v==='number'?'#e0f0ff':'#fff'; lsNumber.style.borderColor=v==='number'?'#1a56a0':'#bbb'; buildPreview(); }
+      lsBullet.addEventListener('click',function(){ setListStyle('bullet'); });
+      lsNumber.addEventListener('click',function(){ setListStyle('number'); });
+      lsRow3.appendChild(lsLbl3); lsRow3.appendChild(lsBullet); lsRow3.appendChild(lsNumber);
+      setListStyle(b.data.listStyle);
       var ta=document.createElement('textarea'); ta.className='finp'; ta.style.minHeight='80px'; ta.value=b.data.text;
       ta.addEventListener('input',(function(bd){return function(){bd.text=this.value;buildPreview();};})(b.data));
-      body.appendChild(l3); body.appendChild(alignRow3); body.appendChild(ta);
+      body.appendChild(l3); body.appendChild(alignRow3); body.appendChild(lsRow3); body.appendChild(ta);
+      if(DUAL){
+        var l3b=document.createElement('div'); l3b.className='flbl'; l3b.style.color='#0891b2'; l3b.textContent='🌐 '+DUAL_LABEL+' 條款';
+        var ta2=document.createElement('textarea'); ta2.className='finp'; ta2.style.minHeight='80px'; ta2.style.borderColor='#0891b2'; ta2.value=pick(b.data.text||'', b.data.text2, true);
+        ta2.addEventListener('input',(function(bd){return function(){bd.text2=this.value;buildPreview();};})(b.data));
+        body.appendChild(l3b); body.appendChild(ta2);
+      }
     }
     else if(b.type==='table'){ body.appendChild(buildTableEditor(b)); }
     else if(b.type==='linkbtn'){ body.appendChild(buildLinkBtnEditor(b)); }
     else if(b.type==='image'){ body.appendChild(buildImageEditor(b)); }
+    else if(b.type==='turnover'){ body.appendChild(buildTurnoverEditor(b)); }
     else if(b.type==='plaintext'){ body.appendChild(buildPlaintextEditor(b)); }
     card.appendChild(hdr); card.appendChild(body); bl.appendChild(card);
   });
@@ -1284,7 +1772,7 @@ function setupDrag(){
 /* ── HTML 生成 ── */
 function imgHTML(d){ if(!d.src)return ''; var img='<img src="'+d.src+'" alt="'+esc(d.alt||'')+'" style="width:'+d.width+';border-radius:'+d.borderRadius+';display:block;">'; if(d.link)img='<a href="'+esc(d.link)+'" target="_blank">'+img+'</a>'; return '<div style="text-align:'+d.align+';margin-bottom:20px;">'+img+'</div>'; }
 
-function buildTblHTML(d){
+function buildTblHTML(d, useSec){
   var c=GC, isKV=d.ttype==='kv', ncols=isKV?2:d.ncols;
   var bid=d._bid||0;
   var tsh='text-shadow:-1px -1px 0 '+c.tableCellText+',1px -1px 0 '+c.tableCellText+',-1px 1px 0 '+c.tableCellText+',1px 1px 0 '+c.tableCellText+',2px 2px 0 '+c.tableCellText+';';
@@ -1292,8 +1780,9 @@ function buildTblHTML(d){
   var hlShadow='text-shadow:0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+',0 0 4px '+c.tableCellText+';';
   var htd='background:'+c.tableHeaderBg+';color:'+c.tableHeaderText+';font-size:clamp(12px,3vw,18px);padding:8px 6px;text-align:center;vertical-align:middle;word-break:break-word;white-space:normal;overflow-wrap:break-word;border-radius:8px 8px 0 0;';
   var hst='background:'+c.tableHeaderBg+';color:'+c.tableHeaderText+';font-size:clamp(10px,2.5vw,15px);padding:7px 4px;text-align:center;vertical-align:middle;word-break:break-word;white-space:normal;overflow-wrap:break-word;';
-  var titleRow = d.title && d.title.trim() ? '<tr><td colspan="'+ncols+'" style="'+htd+'">'+esc(d.title)+'</td></tr>' : '';
-  var noTitle = !(d.title && d.title.trim());
+  var dispTitle = pick(d.title, d.title2, useSec);
+  var titleRow = dispTitle && dispTitle.trim() ? '<tr><td colspan="'+ncols+'" style="'+htd+'">'+esc(dispTitle)+'</td></tr>' : '';
+  var noTitle = !(dispTitle && dispTitle.trim());
   function cst(ci,ri,row){
     var k=_tKey(bid,ri,ci);
     var isHL=!!TBL_HIGHLIGHT[k];
@@ -1333,23 +1822,25 @@ function buildTblHTML(d){
       var cs=span?span.cs:1, rs=span?span.rs:1;
       var colAttr=(cs>1?' colspan="'+cs+'"':'')+(rs>1?' rowspan="'+rs+'"':'');
       var spanExtra=(cs>1||rs>1)?'vertical-align:middle;text-align:center;':'';
-      return '<td'+colAttr+' style="'+cst(ci,ri,row)+spanExtra+'">'+esc(cell)+'</td>';
+      var dispCell = pick(cell, row.cells2&&row.cells2[ci], useSec);
+      return '<td'+colAttr+' style="'+cst(ci,ri,row)+spanExtra+'">'+esc(dispCell)+'</td>';
     }).join('')+'</tr>';
   }).join('');
   var hRow='';
   if(!isKV){
     /* 若所有欄位標題均為空白，整行隱藏 */
-    var anyColFilled = d.cols.some(function(col){ return col && col.trim(); });
+    var anyColFilled = d.cols.some(function(col){ return col && col.trim(); }) || (useSec && d.cols2 && d.cols2.some(function(col){ return col && col.trim(); }));
     if(anyColFilled){
       var hCells=d.cols.map(function(col,ci){
         if(_isHdrHidden(bid,ci)) return '';
         var span=_getHdrSpan(bid,ci);
         var cs=span?span.cs:1;
         var colAttr=cs>1?' colspan="'+cs+'"':'';
+        var dispCol = pick(col, d.cols2&&d.cols2[ci], useSec);
         /* 個別格也空白則隱藏（display:none 不適用 td，改用 visibility:hidden + 無內容） */
-        var isEmpty=!col||!col.trim();
+        var isEmpty=!dispCol||!dispCol.trim();
         if(isEmpty) return '<td'+colAttr+' style="'+hst+'width:'+Math.floor(100*cs/ncols)+'%;opacity:0;"></td>';
-        return '<td'+colAttr+' style="'+hst+'width:'+Math.floor(100*cs/ncols)+'%;">'+esc(col)+'</td>';
+        return '<td'+colAttr+' style="'+hst+'width:'+Math.floor(100*cs/ncols)+'%;">'+esc(dispCol)+'</td>';
       }).join('');
       hRow='<tr>'+hCells+'</tr>';
     }
@@ -1358,7 +1849,7 @@ function buildTblHTML(d){
 }
 
 
-function buildLinkBtnHTML(d) {
+function buildLinkBtnHTML(d, useSec) {
   var align = d.align||'center';
   var wrapAlign = align==='center'?'text-align:center;':(align==='right'?'text-align:right;':'text-align:left;');
   var glowColor = d.glowColor || d.shadowColor || '#00ff84';
@@ -1387,16 +1878,16 @@ function buildLinkBtnHTML(d) {
     'margin-bottom:20px'
   ].join(';');
   var url = (d.url||'#');
-  return '<div style="'+wrapAlign+'margin-top:16px;margin-bottom:20px;"><a href="'+url+'" target="_blank" style="'+style+'">'+esc(d.text||'按鈕')+'</a></div>';
+  return '<div style="'+wrapAlign+'margin-top:16px;margin-bottom:20px;"><a href="'+url+'" target="_blank" style="'+style+'">'+esc(pick(d.text, d.text2, useSec)||'按鈕')+'</a></div>';
 }
 
-function buildContent(){
+function buildContent(useSec){
   var c=GC, parts=[], tbuf=[];
-  function flush(){ if(!tbuf.length)return; var inner=tbuf.map(function(d,i){return buildTblHTML(d)+(i<tbuf.length-1?'<div style="height:3px;background:'+c.separatorColor+';margin:0 6px;">&nbsp;</div>':'');}).join(''); parts.push('<div style="background:'+c.tableBg+';padding:6px;border-radius:18px;border:2px solid '+c.tableBorder+';margin-bottom:20px;">'+inner+'</div><p>&nbsp;</p>'); tbuf=[]; }
+  function flush(){ if(!tbuf.length)return; var inner=tbuf.map(function(d,i){return buildTblHTML(d,useSec)+(i<tbuf.length-1?'<div style="height:3px;background:'+c.separatorColor+';margin:0 6px;">&nbsp;</div>':'');}).join(''); parts.push('<div style="background:'+c.tableBg+';padding:6px;border-radius:18px;border:2px solid '+c.tableBorder+';margin-bottom:20px;">'+inner+'</div><p>&nbsp;</p>'); tbuf=[]; }
   blocks.forEach(function(b){
     if(b.type==='table'){b.data._bid=b.id;tbuf.push(b.data);return;} flush();
     if(b.type==='title'){
-      var tm=b.data.mode||'standard', tt=esc(b.data.text), ts='';
+      var tm=b.data.mode||'standard', tt=esc(pick(b.data.text, b.data.text2, useSec)), ts='';
       if(tm==='standard') ts='background:'+c.titleBg+';color:'+c.titleText+';text-align:center;font-size:26px;font-weight:bold;padding:12px;border:2px solid '+c.titleBorder+';border-radius:12px;margin-bottom:15px;';
       else if(tm==='underline') ts='background:transparent;color:'+c.titleText+';text-align:center;font-size:26px;font-weight:bold;padding:10px 12px;border-bottom:3px solid '+c.titleBorder+';margin-bottom:15px;';
       else if(tm==='plain') ts='background:transparent;color:'+c.titleText+';text-align:center;font-size:26px;font-weight:bold;padding:8px;margin-bottom:15px;';
@@ -1404,10 +1895,22 @@ function buildContent(){
       else if(tm==='pill') ts='background:'+c.titleBg+';color:'+c.titleText+';text-align:center;font-size:26px;font-weight:bold;padding:10px 24px;border:2px solid '+c.titleBorder+';border-radius:999px;margin-bottom:15px;display:inline-block;width:100%;box-sizing:border-box;';
       else if(tm==='side') ts='background:transparent;color:'+c.titleText+';text-align:left;font-size:26px;font-weight:bold;padding:8px 14px;border-left:6px solid '+c.titleBorder+';margin-bottom:15px;';
       parts.push('<div style="'+ts+'">' + tt + '</div>');}
-    else if(b.type==='text'){ var ta2=b.data.align==='center'?'center':'left'; parts.push('<div style="background:'+c.textBg+';color:'+c.textMain+';padding:18px;border-radius:12px;border:2px solid '+c.textBorder+';font-size:18px;line-height:1.7;font-weight:bold;margin-bottom:20px;text-align:'+ta2+';">'+(b.data.html||'')+'</div>'); }
-    else if(b.type==='terms'){ var ta3=b.data.align==='center'?'center':'left'; var html=b.data.text.split('\n').filter(function(l){return l.trim();}).map(function(l){ var t=l.trim(),m=t.match(/(https?:\/\/[^\s]+)/); if(m){var url=m[1],p=t.split(url);return '&bull; '+esc(p[0])+'<a href="'+url+'" style="color:'+c.textAccent+';text-decoration:none;font-weight:bold" target="_blank">'+url+'</a>'+esc(p[1]||'');} return '&bull; '+esc(t); }).join('<br/>'); parts.push('<div style="background:'+c.textBg+';color:'+c.textMain+';padding:18px;border-radius:12px;border:2px solid '+c.textBorder+';font-size:16px;line-height:1.8;font-weight:bold;word-break:break-word;text-align:'+ta3+';">'+html+'&nbsp;</div>'); }
-    else if(b.type==='linkbtn'){ parts.push(buildLinkBtnHTML(b.data)); }
+    else if(b.type==='text'){ var ta2=b.data.align==='center'?'center':'left'; parts.push('<div style="background:'+c.textBg+';color:'+c.textMain+';padding:18px;border-radius:12px;border:2px solid '+c.textBorder+';font-size:18px;line-height:1.7;font-weight:bold;margin-bottom:20px;text-align:'+ta2+';">'+pick(b.data.html, b.data.html2, useSec)+'</div>'); }
+    else if(b.type==='terms'){ var ta3=b.data.align==='center'?'center':'left'; var termsText=pick(b.data.text, b.data.text2, useSec); var ls3=b.data.listStyle||'bullet'; var lines3=termsText.split('\n').filter(function(l){return l.trim();}); var prefixW=ls3==='number'?(String(lines3.length).length+0.6)+'em':'1em'; var html=lines3.map(function(l,idx){ var t=l.trim(),m=t.match(/(https?:\/\/[^\s]+)/); var prefix=ls3==='number'?(idx+1)+'.':'&bull;'; var body; if(m){var url=m[1],p=t.split(url);body=esc(p[0])+'<a href="'+url+'" style="color:'+c.textAccent+';text-decoration:none;font-weight:bold" target="_blank">'+url+'</a>'+esc(p[1]||'');} else body=esc(t); return '<div style="display:flex;align-items:flex-start;'+(ta3==='center'?'justify-content:center;':'')+'margin-bottom:4px;"><span style="flex:0 0 '+prefixW+';">'+prefix+'</span><span style="flex:1 1 auto;text-align:'+ta3+';">'+body+'</span></div>'; }).join(''); parts.push('<div style="background:'+c.textBg+';color:'+c.textMain+';padding:18px;border-radius:12px;border:2px solid '+c.textBorder+';font-size:16px;line-height:1.8;font-weight:bold;word-break:break-word;">'+html+'&nbsp;</div>'); }
+    else if(b.type==='linkbtn'){ parts.push(buildLinkBtnHTML(b.data, useSec)); }
     else if(b.type==='image'){ var ih=imgHTML(b.data); if(ih)parts.push(ih); }
+    else if(b.type==='turnover'){
+      var tov=calcTurnoverVals(b.data);
+      if(b.data.displayMode==='table'){
+        var tdData = !useSec ? calcTurnoverTableData('english',tov) : calcTurnoverTableData(DUAL_LANG,tov);
+        parts.push(buildTurnoverTableHTML(tdData));
+      } else {
+        var ta5=b.data.align==='center'?'center':'left';
+        var primaryText = b.data.text || calcTurnoverText('english',tov);
+        var tovText = !useSec ? primaryText : (b.data.text2||calcTurnoverText(DUAL_LANG,tov));
+        parts.push('<div style="background:'+c.textBg+';color:'+c.textMain+';padding:18px;border-radius:12px;border:2px solid '+c.textBorder+';font-size:16px;line-height:1.8;font-weight:bold;white-space:pre-line;margin-bottom:20px;text-align:'+ta5+';">'+esc(tovText)+'</div>');
+      }
+    }
     else if(b.type==='plaintext'){
       var pd=b.data;
       var ta4=pd.align==='center'?'center':pd.align==='right'?'right':'left';
@@ -1423,43 +1926,111 @@ function buildContent(){
       if(pd.shadow){ var sx=pd.shadowX||2,sy=pd.shadowY||2,sb=pd.shadowBlur||4,sc=pd.shadowColor||'#000000'; tsh.push(sx+'px '+sy+'px '+sb+'px '+sc); }
       if(pd.glow){ var gc2=pd.glowColor||'#00ff84',gs=pd.glowSize||10; tsh.push('0 0 '+gs+'px '+gc2+',0 0 '+(gs*2)+'px '+gc2); }
       if(tsh.length) ptStyle+='text-shadow:'+tsh.join(',')+';';
-      parts.push('<div style="'+ptStyle+'">'+(pd.html||'')+'</div>');
+      parts.push('<div style="'+ptStyle+'">'+pick(pd.html, pd.html2, useSec)+'</div>');
     }
   });
   flush();
   return '<!-- GC:'+JSON.stringify(GC)+' -->\n<div style="background:'+c.outerBg+';padding:15px;border:4px solid '+c.outerBorder+';border-radius:18px;font-family:Arial,sans-serif;max-width:680px;margin:auto;color:#fff;box-shadow:0 0 18px '+c.outerBorder+';">\n'+parts.join('\n')+'\n</div>';
 }
 
-function buildPreview(){ try{ document.getElementById('prev').innerHTML=buildContent().replace(/^<!--[\s\S]*?-->\n/,''); }catch(e){} }
-function showHTML(){ var h=buildContent(); document.getElementById('hout').textContent=h; document.getElementById('hout').style.display='block'; }
-function copyHTML(){ navigator.clipboard.writeText(buildContent()).then(function(){ alert('已複製至剪貼簿！'); }); showHTML(); }
+function buildDualPreviewHTML(){
+  var c1=buildContent(false), c2=buildContent(true);
+  var gcComment=''; var m=c1.match(/^<!--[\s\S]*?-->\n/);
+  if(m){ gcComment=m[0]; c1=c1.replace(m[0],''); }
+  c2=c2.replace(/^<!--[\s\S]*?-->\n/,'');
+  return gcComment+
+    '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">'+
+    '<div style="flex:1;min-width:260px;"><div style="text-align:center;font-weight:700;color:#0891b2;margin-bottom:6px;font-size:13px;font-family:Arial,sans-serif;">English</div>'+c1+'</div>'+
+    '<div style="flex:1;min-width:260px;"><div style="text-align:center;font-weight:700;color:#0891b2;margin-bottom:6px;font-size:13px;font-family:Arial,sans-serif;">'+esc(DUAL_LABEL)+'</div>'+c2+'</div>'+
+    '</div>';
+}
+
+/* 輸出（複製／顯示 HTML）時，兩種語言各自獨立、完全分開，
+   方便分別貼到不同平台／不同語言的廣告活動，不會被併在同一個容器裡。 */
+function buildFullOutput(){
+  var c1=buildContent(false), c2=buildContent(true);
+  return '<!-- ============================== English ============================== -->\n\n'+c1+
+    '\n\n\n<!-- ============================== '+DUAL_LABEL+' ============================== -->\n\n'+c2;
+}
+
+function buildPreview(){ try{ var html = DUAL ? buildDualPreviewHTML() : buildContent(false); document.getElementById('prev').innerHTML=html.replace(/^<!--[\s\S]*?-->\n/,''); }catch(e){} }
+function showHTML(){ var h=buildFullOutput(); document.getElementById('hout').textContent=h; document.getElementById('hout').style.display='block'; }
+function copyHTML(){ navigator.clipboard.writeText(buildFullOutput()).then(function(){ alert('已複製至剪貼簿！'); }); showHTML(); }
+function showHTMLSingle(useSec){ var h=buildContent(useSec); document.getElementById('hout').textContent=h; document.getElementById('hout').style.display='block'; }
+function copyHTMLSingle(useSec){ var h=buildContent(useSec); navigator.clipboard.writeText(h).then(function(){ alert('已複製'+(useSec?DUAL_LABEL:'English')+'版本至剪貼簿！'); }); showHTMLSingle(useSec); }
 
 /* ── 匯入 ── */
+function parseSingleHTML(raw){
+  var result={gc:null, blocks:[]};
+  var gcM=raw.match(/<!--\s*GC:(\{[\s\S]*?\})\s*-->/);
+  if(gcM){ try{ result.gc=JSON.parse(gcM[1]); }catch(e){} }
+  var parser=new DOMParser(), doc=parser.parseFromString(raw,'text/html'), nb=[];
+  var outer=doc.querySelector('div[style*="border-radius:18px"]');
+  if(!outer) return result;
+  Array.from(outer.children).forEach(function(el){
+    var st=el.getAttribute('style')||'';
+    if(el.tagName==='P') return;
+    if(el.tagName==='DIV'&&st.indexOf('border-radius:18px')>=0){
+      el.querySelectorAll('table').forEach(function(tbl){
+        var tc=tbl.querySelector('td[colspan]'), title=tc?tc.textContent.trim():'TABLE';
+        var ar=Array.from(tbl.querySelectorAll('tr')).slice(1), isKV=!(ar.length>0&&ar[0].querySelectorAll('td').length>2);
+        var cols=[],dr=ar;
+        if(!isKV&&ar.length>0){ cols=Array.from(ar[0].querySelectorAll('td')).map(function(td){return td.textContent.trim();}); dr=ar.slice(1); }
+        nb.push({id:nid(),type:'table',open:false,data:{title:title,ttype:isKV?'kv':'grid',ncols:isKV?2:(cols.length||2),cols:cols,rows:dr.map(function(tr){ var tds=Array.from(tr.querySelectorAll('td')); return {cells:tds.map(function(td){return td.textContent.trim();}),bg:tds.map(function(td){var m=(td.getAttribute('style')||'').match(/background:([^;]+)/);return m?m[1].trim():''}),fg:tds.map(function(td){var m=(td.getAttribute('style')||'').match(/(?:^|;)\s*color:([^;]+)/);return m?m[1].trim():''})}; })}});
+      });
+    } else if(st.indexOf('font-size:26px')>=0){ nb.push({id:nid(),type:'title',open:false,data:{text:el.textContent.trim()}});
+    } else if(st.indexOf('font-size:18px')>=0||st.indexOf('font-size:16px')>=0){ var iH=el.innerHTML; if(iH.indexOf('&bull;')>=0||iH.indexOf('\u2022')>=0){ nb.push({id:nid(),type:'terms',open:false,data:{text:(el.innerText||el.textContent).split('\n').map(function(l){return l.replace(/^[\u2022\s]+/,'').trim();}).filter(Boolean).join('\n'),align:'left'}}); } else { nb.push({id:nid(),type:'text',open:false,data:{html:iH,align:'left'}}); }
+    } else if(el.querySelector&&el.querySelector('img')){ var img2=el.querySelector('img'),a2=el.querySelector('a'); nb.push({id:nid(),type:'image',open:false,data:{src:img2?img2.src:'',alt:img2?img2.alt||'':'',width:img2?img2.style.width||'100%':'100%',align:'center',link:a2?a2.href:'',borderRadius:img2?img2.style.borderRadius||'0':'0'}}); }
+  });
+  result.blocks=nb;
+  return result;
+}
+
+/* 匯入 HTML：自動偵測是否為雙語輸出格式（含「==== 語言 ====」分隔註解），
+   若是，第一段當主要語言、第二段內容會分別填入各區塊的第二語言欄位。 */
+function _mergeSecondaryBlocks(nb, nb2){
+  nb.forEach(function(b,i){
+    var b2=nb2[i]; if(!b2||b2.type!==b.type) return;
+    if(b.type==='title'){ b.data.text2=b2.data.text||''; }
+    else if(b.type==='text'){ b.data.html2=b2.data.html||''; }
+    else if(b.type==='terms'){ b.data.text2=b2.data.text||''; }
+    else if(b.type==='plaintext'){ b.data.html2=b2.data.html||''; }
+    else if(b.type==='table'){
+      b.data.title2=b2.data.title||'';
+      b.data.cols2=(b2.data.cols&&b2.data.cols.length===b.data.cols.length)?b2.data.cols.slice():b.data.cols.map(function(){return '';});
+      b.data.rows.forEach(function(r,ri){
+        var r2row=b2.data.rows[ri];
+        r.cells2=(r2row&&r2row.cells.length===r.cells.length)?r2row.cells.slice():r.cells.map(function(){return '';});
+      });
+    }
+  });
+}
+
 function importHTML(){
-  var raw=document.getElementById('imp-area').value.trim(), msg=document.getElementById('imp-msg');
-  if(!raw){ msg.textContent='請貼入 HTML'; return; }
+  var raw=document.getElementById('imp-area').value.trim();
+  var raw2=document.getElementById('imp-area2').value.trim();
+  var msg=document.getElementById('imp-msg');
+  if(!raw){ msg.textContent='請貼入主要語言 HTML'; return; }
   try{
-    var gcM=raw.match(/<!--\s*GC:(\{[\s\S]*?\})\s*-->/);
-    if(gcM){ var parsed=JSON.parse(gcM[1]); Object.keys(parsed).forEach(function(k){ if(GC.hasOwnProperty(k)) GC[k]=parsed[k]; }); renderGColors(); }
-    var parser=new DOMParser(), doc=parser.parseFromString(raw,'text/html'), nb=[];
-    var outer=doc.querySelector('div[style*="border-radius:18px"]');
-    if(!outer){ msg.style.color='#c00'; msg.textContent='找不到有效結構'; return; }
-    Array.from(outer.children).forEach(function(el){
-      var st=el.getAttribute('style')||'';
-      if(el.tagName==='P') return;
-      if(el.tagName==='DIV'&&st.indexOf('border-radius:18px')>=0){
-        el.querySelectorAll('table').forEach(function(tbl){
-          var tc=tbl.querySelector('td[colspan]'), title=tc?tc.textContent.trim():'TABLE';
-          var ar=Array.from(tbl.querySelectorAll('tr')).slice(1), isKV=!(ar.length>0&&ar[0].querySelectorAll('td').length>2);
-          var cols=[],dr=ar;
-          if(!isKV&&ar.length>0){ cols=Array.from(ar[0].querySelectorAll('td')).map(function(td){return td.textContent.trim();}); dr=ar.slice(1); }
-          nb.push({id:nid(),type:'table',open:false,data:{title:title,ttype:isKV?'kv':'grid',ncols:isKV?2:(cols.length||2),cols:cols,rows:dr.map(function(tr){ var tds=Array.from(tr.querySelectorAll('td')); return {cells:tds.map(function(td){return td.textContent.trim();}),bg:tds.map(function(td){var m=(td.getAttribute('style')||'').match(/background:([^;]+)/);return m?m[1].trim():''}),fg:tds.map(function(td){var m=(td.getAttribute('style')||'').match(/(?:^|;)\s*color:([^;]+)/);return m?m[1].trim():''})}; })}});
-        });
-      } else if(st.indexOf('font-size:26px')>=0){ nb.push({id:nid(),type:'title',open:false,data:{text:el.textContent.trim()}});
-      } else if(st.indexOf('font-size:18px')>=0||st.indexOf('font-size:16px')>=0){ var iH=el.innerHTML; if(iH.indexOf('&bull;')>=0||iH.indexOf('\u2022')>=0){ nb.push({id:nid(),type:'terms',open:false,data:{text:(el.innerText||el.textContent).split('\n').map(function(l){return l.replace(/^[\u2022\s]+/,'').trim();}).filter(Boolean).join('\n'),align:'left'}}); } else { nb.push({id:nid(),type:'text',open:false,data:{html:iH,align:'left'}}); }
-      } else if(el.querySelector&&el.querySelector('img')){ var img2=el.querySelector('img'),a2=el.querySelector('a'); nb.push({id:nid(),type:'image',open:false,data:{src:img2?img2.src:'',alt:img2?img2.alt||'':'',width:img2?img2.style.width||'100%':'100%',align:'center',link:a2?a2.href:'',borderRadius:img2?img2.style.borderRadius||'0':'0'}}); }
-    });
-    if(nb.length>0){ blocks=nb; msg.style.color='#2e7d4f'; msg.textContent='成功載入 '+nb.length+' 個區塊！'; }
+    var markerRe=/<!--\s*=+[\s\S]*?=+\s*-->/g;
+    var segments=raw.split(markerRe).map(function(s){return s.trim();}).filter(Boolean);
+    var r1=parseSingleHTML(segments[0]||raw);
+    if(r1.gc){ Object.keys(r1.gc).forEach(function(k){ if(GC.hasOwnProperty(k)) GC[k]=r1.gc[k]; }); renderGColors(); }
+    var nb=r1.blocks;
+    var dualImported=false;
+    if(raw2){
+      /* 第二語言格有貼資料：優先使用，並一併解析（若其中含分隔標記也會自動拆解） */
+      var seg2=raw2.split(markerRe).map(function(s){return s.trim();}).filter(Boolean);
+      var r2=parseSingleHTML(seg2[0]||raw2);
+      _mergeSecondaryBlocks(nb, r2.blocks);
+      dualImported=true;
+    } else if(segments.length>=2){
+      /* 第二語言格未填，但主要語言格貼了整段雙語輸出，自動拆解 */
+      var r2b=parseSingleHTML(segments[1]);
+      _mergeSecondaryBlocks(nb, r2b.blocks);
+      dualImported=true;
+    }
+    if(nb.length>0){ blocks=nb; msg.style.color='#2e7d4f'; msg.textContent='成功載入 '+nb.length+' 個區塊'+(dualImported?'（含雙語內容）':'')+'！'; }
     else{ msg.style.color='#c00'; msg.textContent='未找到可解析區塊'; }
     renderBlocks();
   } catch(e){ msg.style.color='#c00'; msg.textContent='解析失敗：'+e.message; }
@@ -1480,17 +2051,22 @@ Object.keys(THEMES).forEach(function(key){
 
 /* 新增區塊按鈕 */
 var addBar = document.getElementById('add-bar');
-[{t:'標題',type:'title',cls:'at'},{t:'文字',type:'text',cls:'ax'},{t:'表格',type:'table',cls:'al'},{t:'條款',type:'terms',cls:'am'},{t:'圖片',type:'image',cls:'ai'},{t:'無框文字',type:'plaintext',cls:'ap'},{t:'連結按鈕',type:'linkbtn',cls:'ab'}].forEach(function(x){
+[{t:'標題',type:'title',cls:'at'},{t:'文字',type:'text',cls:'ax'},{t:'表格',type:'table',cls:'al'},{t:'條款',type:'terms',cls:'am'},{t:'圖片',type:'image',cls:'ai'},{t:'無框文字',type:'plaintext',cls:'ap'},{t:'連結按鈕',type:'linkbtn',cls:'ab'},{t:'流水',type:'turnover',cls:'av'}].forEach(function(x){
   var btn=document.createElement('button'); btn.type='button'; btn.className='abbtn '+x.cls; btn.textContent=x.t;
   btn.addEventListener('click',function(){ addBlock(x.type); });
   addBar.appendChild(btn);
 });
 document.getElementById('btn-out').addEventListener('click', showHTML);
 document.getElementById('btn-cp').addEventListener('click', copyHTML);
+document.getElementById('btn-out-p').addEventListener('click', function(){ showHTMLSingle(false); });
+document.getElementById('btn-cp-p').addEventListener('click', function(){ copyHTMLSingle(false); });
+document.getElementById('btn-out-s').addEventListener('click', function(){ showHTMLSingle(true); });
+document.getElementById('btn-cp-s').addEventListener('click', function(){ copyHTMLSingle(true); });
 document.getElementById('btn-imp').addEventListener('click', importHTML);
 
 applyTheme('green');
 renderBlocks();
+_updateDualOutBox();
 </script>
 </body>
 </html>
