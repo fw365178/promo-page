@@ -56,12 +56,15 @@ textarea.finp{resize:vertical;min-height:68px;line-height:1.5}
 .abbtn.at{border-color:#2e7d4f;color:#2e7d4f}.abbtn.ax{border-color:#1a56a0;color:#1a56a0}.abbtn.al{border-color:#b45309;color:#b45309}.abbtn.am{border-color:#9d2a5e;color:#9d2a5e}.abbtn.ai{border-color:#6b21a8;color:#6b21a8}.abbtn.ap{border-color:#0891b2;color:#0891b2}.abbtn.av{border-color:#b91c1c;color:#b91c1c}
 .outbtn{background:#222;border:none;border-radius:8px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer;color:#fff}
 .outbtn:hover{background:#444}
-#hout{display:none;background:#fff;border:1.5px solid #ccc;border-radius:8px;padding:8px;font-size:10px;font-family:monospace;overflow-x:auto;white-space:pre;color:#444;max-height:120px;overflow-y:auto}
+#hout{display:none;background:#fff;border:2px solid #1a56a0;border-radius:8px;padding:8px;font-size:12px;line-height:1.5;font-family:monospace;overflow-x:hidden;white-space:pre-wrap;word-break:break-all;color:#222;min-height:90px;max-height:320px;overflow-y:auto;margin-top:6px;}
 .rich-tb{display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:5px;background:#f0f0f0;border-radius:5px;border:1px solid #ddd;margin-bottom:3px}
 .rtbtn{font-size:11px;padding:2px 6px;border-radius:4px;border:1.5px solid #bbb;background:#fff;cursor:pointer;color:#333;font-weight:600}
 .rtbtn:hover{background:#eee}
 .rich-area{width:100%;border:1.5px solid #bbb;border-radius:6px;padding:6px 8px;font-size:14px;background:#fafafa;color:#222;min-height:68px;overflow-y:auto;line-height:1.5}
 .rich-area:focus{outline:none;border-color:#777}
+.rich-area>div[data-ls="bullet"]{background:rgba(26,86,160,.08);border-left:3px solid #1a56a0;padding-left:4px}
+.rich-area>div[data-ls="number"]{background:rgba(0,140,90,.08);border-left:3px solid #00865a;padding-left:4px}
+.rich-area>div[data-ls="none"]{background:rgba(200,80,0,.08);border-left:3px solid #c85000;padding-left:4px}
 .ccbox{flex:1;min-width:90px;border:1px solid #e0e0e0;border-radius:6px;padding:6px;background:#f9f9f9;display:flex;flex-direction:column;gap:4px}
 .ccbox-t{font-size:11px;font-weight:700;color:#555}
 .cc-r{display:flex;align-items:center;gap:3px}
@@ -126,6 +129,7 @@ textarea.finp{resize:vertical;min-height:68px;line-height:1.5}
       <button class="outbtn" id="btn-cp-s" style="flex:1;background:#066a85;">複製<span id="dual-cp-s-label">第二語言</span></button>
     </div>
   </div>
+  <div id="hout-label" style="display:none;font-size:12px;font-weight:700;color:#1a56a0;margin-top:8px;">⬇️ 輸出結果（可全選複製）：</div>
   <div id="hout"></div>
   <div class="imp-box">
     <div class="flbl">匯入 HTML（貼入後點解析）</div>
@@ -384,7 +388,7 @@ function getName(b){
 function addBlock(type){
   var d;
   if(type==='title') d={text:'新標題',text2:'',mode:'standard'};
-  else if(type==='text') d={html:'文字內容',html2:'',align:'left',outerBorder:true};
+  else if(type==='text') d={html:'文字內容',html2:'',align:'left',outerBorder:true,listStyle:'none'};
   else if(type==='table') d={title:'TABLE',title2:'',ttype:'grid',ncols:2,cols:['欄位1','欄位2'],cols2:['',''],rows:[makeRow(2),makeRow(2)],outerBorder:true};
   else if(type==='terms') d={text:'條款一\n條款二',text2:'',align:'left',listStyle:'bullet',outerBorder:true};
   else if(type==='plaintext') d={html:'無框文字內容',html2:'',color:'#ffffff',fontSize:'16',fontFamily:'Arial',align:'left',lineHeight:'1.7',bold:false,italic:false,underline:false,strike:false,shadow:false,shadowColor:'#000000',shadowBlur:4,shadowX:2,shadowY:2,textBg:false,textBgColor:'#000000',textBgPad:6,textBgRadius:6,border:false,borderColor:'#ffffff',borderWidth:2,borderRadius:8,borderPad:8,glow:false,glowColor:'#00ff84',glowSize:10};
@@ -403,7 +407,7 @@ function clearBlock(id){
   else if(b.type==='terms'){ d.text=''; d.text2=''; }
   else if(b.type==='plaintext'){ d.html=''; d.html2=''; }
   else if(b.type==='linkbtn'){ d.text=''; d.text2=''; }
-  else if(b.type==='turnover'){ d.deposit=''; d.bonusFixed=''; d.bonusPercent=''; d.turnoverX=''; d.text=''; d.text2=''; d.pasteText=''; }
+  else if(b.type==='turnover'){ d.deposit=''; d.bonusFixed=''; d.bonusPercent=''; d.turnoverX=''; d.text=''; d.text2=''; d.pasteText=''; d.headersOverride=null; d.cellsOverride=null; d.headersOverride2=null; d.cellsOverride2=null; }
   else if(b.type==='image'){ d.src=''; d.alt=''; }
   else if(b.type==='table'){
     d.title=''; d.title2='';
@@ -441,7 +445,7 @@ function buildOuterBorderToggle(d, onChange) {
   return row;
 }
 
-function buildRichEditor(html, cb) {
+function buildRichEditor(html, cb, opts) {
   var wrap=document.createElement('div');
   var tb=document.createElement('div'); tb.className='rich-tb';
   var cp=document.createElement('input'); cp.type='color'; cp.className='gc-sw'; cp.value='#ffe600';
@@ -449,6 +453,27 @@ function buildRichEditor(html, cb) {
   var apC=mk('套用顏色'), clC=mk('清除顏色'), urlB=mk('🔗超連結'), rmL=mk('移除連結');
   tb.appendChild(cp); tb.appendChild(apC); tb.appendChild(clC); tb.appendChild(urlB); tb.appendChild(rmL);
   var area=document.createElement('div'); area.className='rich-area'; area.contentEditable='true'; area.innerHTML=html;
+  if(opts && opts.perLine){
+    var lnSep=document.createElement('span'); lnSep.style.cssText='width:1px;background:#ccc;align-self:stretch;margin:0 2px;';
+    var lnLbl=document.createElement('span'); lnLbl.className='flbl'; lnLbl.style.margin='0'; lnLbl.textContent='本行樣式：';
+    var lnNone=mk('無'), lnBullet=mk('• 點'), lnNumber=mk('1. 數字'), lnAuto=mk('預設');
+    tb.appendChild(lnSep); tb.appendChild(lnLbl); tb.appendChild(lnAuto); tb.appendChild(lnNone); tb.appendChild(lnBullet); tb.appendChild(lnNumber);
+    function applyLineStyle(style){
+      area.focus();
+      document.execCommand('formatBlock', false, 'div');
+      var sel=window.getSelection(); if(!sel||!sel.rangeCount)return;
+      var node=sel.getRangeAt(0).commonAncestorContainer;
+      var el=node.nodeType===3?node.parentElement:node;
+      while(el && el.parentNode!==area) el=el.parentNode;
+      if(!el || el===area) return;
+      if(style) el.setAttribute('data-ls', style); else el.removeAttribute('data-ls');
+      cb(area.innerHTML);
+    }
+    lnAuto.addEventListener('click',function(){ applyLineStyle(null); });
+    lnNone.addEventListener('click',function(){ applyLineStyle('none'); });
+    lnBullet.addEventListener('click',function(){ applyLineStyle('bullet'); });
+    lnNumber.addEventListener('click',function(){ applyLineStyle('number'); });
+  }
   apC.addEventListener('click',function(){
     var sel=window.getSelection(); if(!sel||!sel.rangeCount||sel.isCollapsed)return;
     var range=sel.getRangeAt(0), sp=document.createElement('span'); sp.style.color=cp.value;
@@ -475,6 +500,28 @@ function buildRichEditor(html, cb) {
     cb(area.innerHTML);
   });
   area.addEventListener('input',function(){ cb(area.innerHTML); });
+  if(opts && opts.detectList){
+    var numRe=/^\s*\d+[.\)]\s+/, bulRe=/^\s*[•\-\*▪‣◦]\s+/;
+    area.addEventListener('paste',function(e){
+      var cd=e.clipboardData||window.clipboardData; if(!cd)return;
+      var text=cd.getData('text/plain'); if(!text)return;
+      var lines=text.split(/\r\n|\r|\n/);
+      var nonEmpty=lines.filter(function(l){return l.trim();});
+      if(nonEmpty.length<2)return;
+      var numCt=0,bulCt=0;
+      nonEmpty.forEach(function(l){ if(numRe.test(l))numCt++; else if(bulRe.test(l))bulCt++; });
+      var style=null;
+      if(numCt/nonEmpty.length>=0.6) style='number';
+      else if(bulCt/nonEmpty.length>=0.6) style='bullet';
+      if(!style)return;
+      e.preventDefault();
+      var re=style==='number'?numRe:bulRe;
+      var htmlLines=lines.map(function(l){ return '<div>'+esc(l.replace(re,''))+'</div>'; }).join('');
+      document.execCommand('insertHTML',false,htmlLines);
+      if(opts.onListDetected) opts.onListDetected(style);
+      cb(area.innerHTML);
+    });
+  }
   wrap.appendChild(tb); wrap.appendChild(area); return wrap;
 }
 
@@ -792,6 +839,55 @@ function calcTurnoverTableData(lang, v){
   var pcte=_fmtIntl(v.bonusPercent);
   var de2=_fmtIntl(v.deposit), be2=_fmtIntl(v.bonus), te2=_fmtIntl(v.turnover), tote2=_fmtIntl(v.total);
   return {headers:['DEPOSIT','BONUS ('+pcte+'%)','TURNOVER','TARGET'], cells:['('+de2+cur,'+'+be2+cur+')','×'+te2,'='+tote2+cur]};
+}
+function _extractTurnoverNum(str){
+  if(str==null) return NaN;
+  var m = String(str).replace(/,/g,'').match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : NaN;
+}
+function _fmtTurnoverNumForLang(lang, num){
+  if(lang==='bengali') return _convertDigits(_fmtIntl(num),'bengali');
+  if(lang==='nepali') return _convertDigits(_fmtSA(num),'nepali');
+  return _fmtIntl(num);
+}
+function computeTurnoverCellsBase(d, lang, v, useSec){
+  var base = calcTurnoverTableData(lang, v);
+  var cOv = useSec ? d.cellsOverride2 : d.cellsOverride;
+  var depHas = cOv && cOv[0]!=null && cOv[0]!=='';
+  var bonHas = cOv && cOv[1]!=null && cOv[1]!=='';
+  var turHas = cOv && cOv[2]!=null && cOv[2]!=='';
+  var depositNum = depHas ? _extractTurnoverNum(cOv[0]) : v.deposit;
+  var bonusNum = bonHas ? _extractTurnoverNum(cOv[1]) : v.bonus;
+  var turnoverNum = turHas ? _extractTurnoverNum(cOv[2]) : v.turnover;
+  var autoTarget3 = base.cells[3];
+  if((depHas||bonHas||turHas) && isFinite(depositNum) && isFinite(bonusNum) && isFinite(turnoverNum)){
+    var totalNum = (depositNum+bonusNum)*turnoverNum;
+    autoTarget3 = '='+_fmtTurnoverNumForLang(lang, totalNum)+v.currency;
+  }
+  var headers = base.headers.slice();
+  var bonusCell1 = base.cells[1];
+  var depositEmpty = (d.deposit===undefined || d.deposit===null || String(d.deposit).trim()==='');
+  if(depositEmpty && !depHas){
+    bonusCell1 = bonusCell1.replace(/^\+/,'').replace(/\)$/,''); /* 沒有存款欄可配對，拿掉 + 跟 ) */
+    headers[1] = headers[1].replace(/\s*\([^)]*\)\s*$/,''); /* 拿掉標題的 (xx%) */
+  }
+  return {headers: headers, cells:[base.cells[0], bonusCell1, base.cells[2], autoTarget3]};
+}
+function getTurnoverTableData(d, lang, v, useSec){
+  var base = computeTurnoverCellsBase(d, lang, v, useSec);
+  var hOv = useSec ? d.headersOverride2 : d.headersOverride;
+  var cOv = useSec ? d.cellsOverride2 : d.cellsOverride;
+  var depositEmpty = (d.deposit===undefined || d.deposit===null || String(d.deposit).trim()==='');
+  var headers=[], cells=[];
+  base.headers.forEach(function(h,i){
+    var hv = hOv ? hOv[i] : undefined;
+    var cv = cOv ? cOv[i] : undefined;
+    if(hv===''||cv==='') return; /* 明確清空＝隱藏該欄 */
+    if(i===0 && depositEmpty && !hv && !cv) return; /* 沒填存款金額＝自動隱藏存款欄（除非手動覆寫了內容） */
+    headers.push(hv ? hv : h);
+    cells.push(cv ? cv : base.cells[i]);
+  });
+  return {headers:headers, cells:cells};
 }
 function buildTurnoverTableHTML(td, outerBorder){
   var c=GC;
@@ -1453,8 +1549,8 @@ function buildTurnoverEditor(b) {
   function updateAndPreview(){
     var v=calcTurnoverVals(d);
     if(d.displayMode==='table'){
-      if(tBoxEn) tBoxEn.innerHTML=buildTurnoverTableHTML(calcTurnoverTableData('english',v), d.outerBorder);
-      if(tBoxSec) tBoxSec.innerHTML=buildTurnoverTableHTML(calcTurnoverTableData(DUAL_LANG,v), d.outerBorder);
+      if(tBoxEn) tBoxEn.innerHTML=buildTurnoverTableHTML(getTurnoverTableData(d,'english',v,false), d.outerBorder);
+      if(tBoxSec) tBoxSec.innerHTML=buildTurnoverTableHTML(getTurnoverTableData(d,DUAL_LANG,v,true), d.outerBorder);
     } else {
       if(preEn && !d.text) preEn.textContent = calcTurnoverText('english', v);
       if(preSec && !d.text2) preSec.textContent = calcTurnoverText(DUAL_LANG, v);
@@ -1525,17 +1621,56 @@ function buildTurnoverEditor(b) {
   if(d.displayMode==='table'){
     var tPrevEn=document.createElement('div'); tPrevEn.style.cssText='margin-top:6px;';
     var tLblEn=document.createElement('div'); tLblEn.className='flbl'; tLblEn.textContent='表格預覽（English，自動計算）';
-    tBoxEn=document.createElement('div'); tBoxEn.innerHTML=buildTurnoverTableHTML(calcTurnoverTableData('english',calcTurnoverVals(d)));
+    tBoxEn=document.createElement('div'); tBoxEn.innerHTML=buildTurnoverTableHTML(getTurnoverTableData(d,'english',calcTurnoverVals(d),false));
     tPrevEn.appendChild(tLblEn); tPrevEn.appendChild(tBoxEn);
     wrap.appendChild(tPrevEn);
     if(DUAL){
       var tPrevSec=document.createElement('div'); tPrevSec.style.cssText='margin-top:6px;';
       var tLblSec=document.createElement('div'); tLblSec.className='flbl'; tLblSec.style.color='#0891b2'; tLblSec.textContent='表格預覽（'+DUAL_LABEL+'，自動翻譯）';
-      tBoxSec=document.createElement('div'); tBoxSec.innerHTML=buildTurnoverTableHTML(calcTurnoverTableData(DUAL_LANG,calcTurnoverVals(d)));
+      tBoxSec=document.createElement('div'); tBoxSec.innerHTML=buildTurnoverTableHTML(getTurnoverTableData(d,DUAL_LANG,calcTurnoverVals(d),true));
       tPrevSec.appendChild(tLblSec); tPrevSec.appendChild(tBoxSec);
       wrap.appendChild(tPrevSec);
     }
-    var tHint=document.createElement('div'); tHint.style.cssText='font-size:11px;color:#888;'; tHint.textContent='表格模式內容為自動計算，欄位標題與數值會隨上方輸入即時更新（暫不支援手動覆寫文字）。';
+    /* 手動覆寫每個格子：預設帶入自動計算文字，可直接修改；清空＝隱藏該欄 */
+    function buildCellOverrideGrid(label, lang, useSec, borderColor){
+      var box=document.createElement('div'); box.style.cssText='margin-top:6px;display:flex;flex-direction:column;gap:4px;';
+      var lbl=document.createElement('div'); lbl.className='flbl'; if(borderColor) lbl.style.color=borderColor; lbl.textContent=label;
+      box.appendChild(lbl);
+      var hKey = useSec?'headersOverride2':'headersOverride';
+      var cKey = useSec?'cellsOverride2':'cellsOverride';
+      if(!d[hKey]) d[hKey]=[null,null,null,null];
+      if(!d[cKey]) d[cKey]=[null,null,null,null];
+      var v=calcTurnoverVals(d), base=computeTurnoverCellsBase(d, lang, v, useSec);
+      var subLbl1=document.createElement('div'); subLbl1.style.cssText='font-size:11px;color:#888;'; subLbl1.textContent='標題列：';
+      var grid1=document.createElement('div'); grid1.style.cssText='display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;min-width:0;';
+      base.headers.forEach(function(h,i){
+        var inp=document.createElement('input'); inp.className='finp'; inp.style.fontSize='11px'; inp.value=(d[hKey][i]!=null)?d[hKey][i]:h; inp.placeholder='清空＝隱藏此欄';
+        inp.addEventListener('input',function(){ d[hKey][i]=this.value; updateAndPreview(); });
+        grid1.appendChild(inp);
+      });
+      var subLbl2=document.createElement('div'); subLbl2.style.cssText='font-size:11px;color:#888;margin-top:2px;'; subLbl2.textContent='數值列：';
+      var grid2=document.createElement('div'); grid2.style.cssText='display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;min-width:0;';
+      base.cells.forEach(function(cv,i){
+        var inp=document.createElement('input'); inp.className='finp'; inp.style.fontSize='11px'; inp.value=(d[cKey][i]!=null)?d[cKey][i]:cv; inp.placeholder='清空＝隱藏此欄';
+        inp.addEventListener('input',function(){ d[cKey][i]=this.value; updateAndPreview(); });
+        grid2.appendChild(inp);
+      });
+      box.appendChild(subLbl1); box.appendChild(grid1); box.appendChild(subLbl2); box.appendChild(grid2);
+      return box;
+    }
+    wrap.appendChild(buildCellOverrideGrid('手動覆寫格子內容（English，清空＝隱藏該欄）', 'english', false));
+    if(DUAL){
+      wrap.appendChild(buildCellOverrideGrid('手動覆寫格子內容（'+DUAL_LABEL+'，清空＝隱藏該欄）', DUAL_LANG, true, '#0891b2'));
+    }
+    var resetBtn=document.createElement('button'); resetBtn.type='button'; resetBtn.className='rtbtn'; resetBtn.style.cssText='align-self:flex-start;color:#b91c1c;border-color:#b91c1c;';
+    resetBtn.textContent='↺ 重設所有手動覆寫（還原成 4 欄自動計算）';
+    resetBtn.addEventListener('click',function(){
+      if(!confirm('確定要清除這個流水區塊所有手動覆寫的標題／數值嗎？清除後會還原成 4 欄、全部自動計算。')) return;
+      d.headersOverride=null; d.cellsOverride=null; d.headersOverride2=null; d.cellsOverride2=null;
+      renderBlocks();
+    });
+    wrap.appendChild(resetBtn);
+    var tHint=document.createElement('div'); tHint.style.cssText='font-size:11px;color:#888;'; tHint.textContent='每格預設已帶入自動計算的文字，可直接修改覆寫；如果把標題或數值「清空成空白」，會直接隱藏整欄（表格自動變成少一欄），不是恢復自動計算。若手動修改了「存款／獎金／流水倍數」其中的數值，只要 TARGET 欄沒被您手動覆寫，會自動依您填的數字重新算出 TARGET。如果表格卡在舊的手動內容、一直不跟著上方數字變化，用上面的「重設所有手動覆寫」按鈕即可恢復。';
     wrap.appendChild(tHint);
     return wrap;
   }
@@ -1633,7 +1768,7 @@ function convertBlock(id, newType) {
 
   // Build new data based on target type, carrying over text where possible
   var d;
-  if(newType==='text')       d={html:carry||'文字內容',align:'left'};
+  if(newType==='text')       d={html:carry||'文字內容',align:'left',listStyle:'none'};
   else if(newType==='plaintext') d={html:carry||'無框文字內容',color:'#ffffff',fontSize:'16',fontFamily:'Arial',align:'left',lineHeight:'1.7',bold:false,italic:false,underline:false,strike:false,shadow:false,shadowColor:'#000000',shadowBlur:4,shadowX:2,shadowY:2,textBg:false,textBgColor:'#000000',textBgPad:6,textBgRadius:6,border:false,borderColor:'#ffffff',borderWidth:2,borderRadius:8,borderPad:8,glow:false,glowColor:'#00ff84',glowSize:10};
   else if(newType==='terms')  d={text:carry||'條款一\n條款二',align:'left'};
   else if(newType==='title')  d={text:carry||'新標題',mode:'standard'};
@@ -1740,12 +1875,26 @@ function renderBlocks() {
       alignRow2.appendChild(alignLbl2); alignRow2.appendChild(aL2); alignRow2.appendChild(aC2);
       setAlignText2(curA2);
       body.appendChild(l2); body.appendChild(alignRow2);
+      /* 條列樣式：無 / • 點 / 1. 數字 */
+      var lsRow2=document.createElement('div'); lsRow2.style.cssText='display:flex;align-items:center;gap:6px;margin-bottom:4px';
+      var lsLbl2=document.createElement('span'); lsLbl2.className='flbl'; lsLbl2.textContent='條列樣式：';
+      var lsNone2=document.createElement('button'); lsNone2.type='button'; lsNone2.className='rtbtn'; lsNone2.textContent='無';
+      var lsBullet2=document.createElement('button'); lsBullet2.type='button'; lsBullet2.className='rtbtn'; lsBullet2.textContent='• 點';
+      var lsNumber2=document.createElement('button'); lsNumber2.type='button'; lsNumber2.className='rtbtn'; lsNumber2.textContent='1. 數字';
+      if(!b.data.listStyle) b.data.listStyle='none';
+      function setListStyle2(v){ b.data.listStyle=v; lsNone2.style.background=v==='none'?'#e0f0ff':'#fff'; lsNone2.style.borderColor=v==='none'?'#1a56a0':'#bbb'; lsBullet2.style.background=v==='bullet'?'#e0f0ff':'#fff'; lsBullet2.style.borderColor=v==='bullet'?'#1a56a0':'#bbb'; lsNumber2.style.background=v==='number'?'#e0f0ff':'#fff'; lsNumber2.style.borderColor=v==='number'?'#1a56a0':'#bbb'; buildPreview(); }
+      lsNone2.addEventListener('click',function(){ setListStyle2('none'); });
+      lsBullet2.addEventListener('click',function(){ setListStyle2('bullet'); });
+      lsNumber2.addEventListener('click',function(){ setListStyle2('number'); });
+      lsRow2.appendChild(lsLbl2); lsRow2.appendChild(lsNone2); lsRow2.appendChild(lsBullet2); lsRow2.appendChild(lsNumber2);
+      setListStyle2(b.data.listStyle);
+      body.appendChild(lsRow2);
       body.appendChild(buildOuterBorderToggle(b.data));
-      body.appendChild(buildRichEditor(b.data.html||'',(function(bd){return function(v){bd.html=v;buildPreview();};})(b.data)));
+      body.appendChild(buildRichEditor(b.data.html||'',(function(bd){return function(v){bd.html=v;buildPreview();};})(b.data),{detectList:true,perLine:true,onListDetected:function(style){ setListStyle2(style); }}));
       if(DUAL){
         var l2b=document.createElement('div'); l2b.className='flbl'; l2b.style.color='#0891b2'; l2b.textContent='🌐 '+DUAL_LABEL+' 內容';
         body.appendChild(l2b);
-        body.appendChild(buildRichEditor(pick(b.data.html||'', b.data.html2, true),(function(bd){return function(v){bd.html2=v;buildPreview();};})(b.data)));
+        body.appendChild(buildRichEditor(pick(b.data.html||'', b.data.html2, true),(function(bd){return function(v){bd.html2=v;buildPreview();};})(b.data),{detectList:true,perLine:true,onListDetected:function(style){ setListStyle2(style); }}));
       }
     }
     else if(b.type==='terms'){
@@ -1935,6 +2084,47 @@ function buildLinkBtnHTML(d, useSec) {
   return '<div style="'+wrapAlign+'margin-top:16px;margin-bottom:20px;"><a href="'+url+'" target="_blank" style="'+style+'">'+esc(pick(d.text, d.text2, useSec)||'按鈕')+'</a></div>';
 }
 
+function parseListLines(html, blockDefault){
+  if(!html) return [];
+  var tmp=document.createElement('div'); tmp.innerHTML=html;
+  var lines=[], curr=document.createElement('div');
+  function pushCurr(){ if(curr.childNodes.length){ lines.push({html:curr.innerHTML, ls:null}); } curr=document.createElement('div'); }
+  Array.prototype.forEach.call(tmp.childNodes, function(node){
+    if(node.nodeType===1 && /^(DIV|P)$/i.test(node.tagName)){
+      pushCurr();
+      lines.push({html:node.innerHTML, ls:node.getAttribute('data-ls')||null});
+    } else if(node.nodeType===1 && node.tagName==='BR'){
+      pushCurr();
+    } else {
+      curr.appendChild(node.cloneNode(true));
+    }
+  });
+  pushCurr();
+  if(!lines.length) lines.push({html:tmp.innerHTML, ls:null});
+  return lines.filter(function(l){ var t=document.createElement('div'); t.innerHTML=l.html; return (t.textContent||'').trim().length>0; })
+    .map(function(l){ return {html:l.html, ls:l.ls||blockDefault}; });
+}
+function splitHtmlLines(html){
+  return parseListLines(html, null).map(function(l){return l.html;});
+}
+function renderListLines(html, listStyle, align){
+  var lines=parseListLines(html, listStyle);
+  if(!lines.length) return html;
+  var hasAny = lines.some(function(l){ return l.ls==='bullet'||l.ls==='number'; });
+  if(!hasAny) return html;
+  var numCount = lines.filter(function(l){return l.ls==='number';}).length;
+  var prefixW = numCount>0 ? (String(numCount).length+0.6)+'em' : '1em';
+  var numIdx=0;
+  return lines.map(function(l){
+    if(l.ls!=='bullet' && l.ls!=='number'){
+      return '<div style="margin-bottom:4px;text-align:'+align+';">'+l.html+'</div>';
+    }
+    var prefix='';
+    if(l.ls==='bullet') prefix='&bull;';
+    else { numIdx++; prefix=numIdx+'.'; }
+    return '<div style="display:flex;align-items:flex-start;'+(align==='center'?'justify-content:center;':'')+'margin-bottom:4px;"><span style="flex:0 0 '+prefixW+';">'+prefix+'</span><span style="flex:1 1 auto;text-align:'+align+';">'+l.html+'</span></div>';
+  }).join('');
+}
 function buildContent(useSec){
   var c=GC, parts=[], tbuf=[], titleCount=0;
   function flush(){ if(!tbuf.length)return; var isNavyF=isNavyStyleTheme(); var grpOb=isNavyF?false:(tbuf[0].outerBorder!==false); var inner=tbuf.map(function(d,i){return buildTblHTML(d,useSec)+(i<tbuf.length-1&&!isNavyF?'<div style="height:3px;background:'+c.separatorColor+';margin:0 6px;">&nbsp;</div>':'');}).join(''); parts.push('<div style="'+(grpOb?'background:'+c.tableBg+';':'')+'padding:6px;border-radius:18px;'+(grpOb?'border:2px solid '+c.tableBorder+';':'')+'margin-bottom:20px;">'+inner+'</div><p>&nbsp;</p>'); tbuf=[]; }
@@ -1952,14 +2142,14 @@ function buildContent(useSec){
       else if(tm==='pill') ts='background:'+c.titleBg+';color:'+c.titleText+';text-align:center;font-size:26px;font-weight:bold;padding:10px 24px;border:2px solid '+c.titleBorder+';border-radius:999px;margin-bottom:15px;display:inline-block;width:100%;box-sizing:border-box;';
       else if(tm==='side') ts='background:transparent;color:'+c.titleText+';text-align:left;font-size:26px;font-weight:bold;padding:8px 14px;border-left:6px solid '+c.titleBorder+';margin-bottom:15px;';
       parts.push('<div style="'+ts+'">' + tt + '</div>');}
-    else if(b.type==='text'){ var ta2=b.data.align==='center'?'center':'left'; var ob2=isNavyStyleTheme()?false:(b.data.outerBorder!==false); var th2=pick(b.data.html, b.data.html2, useSec); if(currentThemeKey==='whiteblue') th2=th2.replace(/#ffe600/gi,'#f98604'); parts.push('<div style="'+(ob2?'background:'+c.textBg+';':'')+'color:'+c.textMain+';padding:18px;border-radius:12px;'+(ob2?'border:2px solid '+c.textBorder+';':'')+'font-size:18px;line-height:1.7;font-weight:bold;margin-bottom:20px;text-align:'+ta2+';">'+th2+'</div>'); }
+    else if(b.type==='text'){ var ta2=b.data.align==='center'?'center':'left'; var ob2=isNavyStyleTheme()?false:(b.data.outerBorder!==false); var th2=pick(b.data.html, b.data.html2, useSec); if(currentThemeKey==='whiteblue') th2=th2.replace(/#ffe600/gi,'#f98604'); var ls2=b.data.listStyle||'none'; th2=renderListLines(th2, ls2, ta2); parts.push('<div style="'+(ob2?'background:'+c.textBg+';':'')+'color:'+c.textMain+';padding:18px;border-radius:12px;'+(ob2?'border:2px solid '+c.textBorder+';':'')+'font-size:18px;line-height:1.7;font-weight:bold;margin-bottom:20px;text-align:'+ta2+';">'+th2+'</div>'); }
     else if(b.type==='terms'){ var ta3=b.data.align==='center'?'center':'left'; var ob3=isNavyStyleTheme()?false:(b.data.outerBorder!==false); var termsText=pick(b.data.text, b.data.text2, useSec); var ls3=b.data.listStyle||'bullet'; var lines3=termsText.split('\n').filter(function(l){return l.trim();}); var prefixW=ls3==='number'?(String(lines3.length).length+0.6)+'em':'1em'; var html=lines3.map(function(l,idx){ var t=l.trim(),m=t.match(/(https?:\/\/[^\s]+)/); var prefix=ls3==='number'?(idx+1)+'.':'&bull;'; var body; if(m){var url=m[1],p=t.split(url);body=esc(p[0])+'<a href="'+url+'" style="color:'+c.textAccent+';text-decoration:none;font-weight:bold" target="_blank">'+url+'</a>'+esc(p[1]||'');} else body=esc(t); return '<div style="display:flex;align-items:flex-start;'+(ta3==='center'?'justify-content:center;':'')+'margin-bottom:4px;"><span style="flex:0 0 '+prefixW+';">'+prefix+'</span><span style="flex:1 1 auto;text-align:'+ta3+';">'+body+'</span></div>'; }).join(''); parts.push('<div style="'+(ob3?'background:'+c.textBg+';':'')+'color:'+c.textMain+';padding:18px;border-radius:12px;'+(ob3?'border:2px solid '+c.textBorder+';':'')+'font-size:16px;line-height:1.8;font-weight:bold;word-break:break-word;">'+html+'&nbsp;</div>'); }
     else if(b.type==='linkbtn'){ parts.push(buildLinkBtnHTML(b.data, useSec)); }
     else if(b.type==='image'){ if(currentThemeKey==='whiteblue'){ var ih=imgHTML(b.data); if(ih)parts.push(ih); } }
     else if(b.type==='turnover'){
       var tov=calcTurnoverVals(b.data);
       if(b.data.displayMode==='table'){
-        var tdData = !useSec ? calcTurnoverTableData('english',tov) : calcTurnoverTableData(DUAL_LANG,tov);
+        var tdData = !useSec ? getTurnoverTableData(b.data,'english',tov,false) : getTurnoverTableData(b.data,DUAL_LANG,tov,true);
         parts.push(buildTurnoverTableHTML(tdData, isNavyStyleTheme()?false:b.data.outerBorder));
       } else {
         var ta5=b.data.align==='center'?'center':'left'; var ob5=isNavyStyleTheme()?false:(b.data.outerBorder!==false);
@@ -2015,11 +2205,11 @@ function buildFullOutput(){
     '\n\n\n<!-- ============================== '+DUAL_LABEL+' ============================== -->\n\n'+c2;
 }
 
-function buildPreview(){ try{ var html = DUAL ? buildDualPreviewHTML() : buildContent(false); document.getElementById('prev').innerHTML=html.replace(/^<!--[\s\S]*?-->\n/,''); }catch(e){} }
-function showHTML(){ var h=buildFullOutput(); document.getElementById('hout').textContent=h; document.getElementById('hout').style.display='block'; }
-function copyHTML(){ navigator.clipboard.writeText(buildFullOutput()).then(function(){ alert('已複製至剪貼簿！'); }); showHTML(); }
-function showHTMLSingle(useSec){ var h=buildContent(useSec); document.getElementById('hout').textContent=h; document.getElementById('hout').style.display='block'; }
-function copyHTMLSingle(useSec){ var h=buildContent(useSec); navigator.clipboard.writeText(h).then(function(){ alert('已複製'+(useSec?DUAL_LABEL:'English')+'版本至剪貼簿！'); }); showHTMLSingle(useSec); }
+function buildPreview(){ try{ var html = DUAL ? buildDualPreviewHTML() : buildContent(false); document.getElementById('prev').innerHTML=html.replace(/^<!--[\s\S]*?-->\n/,''); }catch(e){ document.getElementById('prev').innerHTML='<div style="color:#ff6666;background:#222;padding:12px;border-radius:8px;font-family:monospace;font-size:12px;white-space:pre-wrap;">⚠️ 預覽產生時發生錯誤：\n'+(e&&e.message||e)+'</div>'; } }
+function showHTML(){ try{ var h=buildFullOutput(); document.getElementById('hout').textContent=h; console.log('[輸出] 產生內容長度：', h.length); }catch(e){ document.getElementById('hout').textContent='⚠️ 輸出時發生錯誤：'+(e&&e.message||e)+'\n\n請截圖這個訊息回報。'; console.error('[輸出] 錯誤：', e); } document.getElementById('hout').style.display='block'; document.getElementById('hout-label').style.display='block'; }
+function copyHTML(){ try{ navigator.clipboard.writeText(buildFullOutput()).then(function(){ alert('已複製至剪貼簿！'); }); }catch(e){} showHTML(); }
+function showHTMLSingle(useSec){ try{ var h=buildContent(useSec); document.getElementById('hout').textContent=h; console.log('[輸出] 產生內容長度：', h.length); }catch(e){ document.getElementById('hout').textContent='⚠️ 輸出時發生錯誤：'+(e&&e.message||e)+'\n\n請截圖這個訊息回報。'; console.error('[輸出] 錯誤：', e); } document.getElementById('hout').style.display='block'; document.getElementById('hout-label').style.display='block'; }
+function copyHTMLSingle(useSec){ try{ var h=buildContent(useSec); navigator.clipboard.writeText(h).then(function(){ alert('已複製'+(useSec?DUAL_LABEL:'English')+'版本至剪貼簿！'); }); }catch(e){} showHTMLSingle(useSec); }
 
 /* ── 匯入 ── */
 function parseSingleHTML(raw){
