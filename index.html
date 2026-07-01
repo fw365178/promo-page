@@ -179,6 +179,69 @@ function _updateDualOutBox(){
 document.getElementById('dual-toggle').addEventListener('change', function(){ DUAL = this.checked; _updateDualOutBox(); renderBlocks(); });
 document.getElementById('dual-label').addEventListener('change', function(){ DUAL_LANG = this.value; DUAL_LABEL = DUAL_LANG_NAMES[DUAL_LANG]; _updateDualOutBox(); renderBlocks(); });
 
+/* ── 語言混用偵測：尼泊爾文(天城文) vs 孟加拉文 互斥檢查 ── */
+var _SCRIPT_RANGES = {
+  nepali:  { re: /[\u0900-\u097F]/, label: '尼泊爾文(天城文)' },
+  bengali: { re: /[\u0980-\u09FF]/, label: '孟加拉文' }
+};
+/* 貨幣代碼互斥檢查：NPR 只能搭配尼泊爾文，BDT 只能搭配孟加拉文 */
+var _CURRENCY_RANGES = {
+  nepali:  { re: /\bBDT\b/i, label: 'BDT' },
+  bengali: { re: /\bNPR\b/i, label: 'NPR' }
+};
+/* 對於目前選擇的 DUAL_LANG，回傳「不應該出現」的另一語言設定（僅在尼泊爾/孟加拉互斥時有效） */
+function _otherScriptCheck(){
+  if(DUAL_LANG==='nepali') return _SCRIPT_RANGES.bengali;
+  if(DUAL_LANG==='bengali') return _SCRIPT_RANGES.nepali;
+  return null;
+}
+/* 回傳目前 DUAL_LANG 底下「不應出現」的貨幣代碼設定 */
+function _otherCurrencyCheck(){
+  if(DUAL_LANG==='nepali') return _CURRENCY_RANGES.nepali;   // 尼泊爾文樣板下，不該出現 BDT
+  if(DUAL_LANG==='bengali') return _CURRENCY_RANGES.bengali; // 孟加拉文樣板下，不該出現 NPR
+  return null;
+}
+/* isPrimary=true：檢查主要(英文)欄位，偵測是否混入當前次語言(DUAL_LANG)的文字或貨幣代碼
+   isPrimary=false：檢查次要(雙語)欄位，只警示「另一種」與目前樣板不符的文字或貨幣 */
+function _scriptMismatchMsg(text, isPrimary){
+  if(!text) return '';
+  var msgs = [];
+  if(isPrimary){
+    /* 主要欄位：偵測次語言本身的文字 script 是否誤入 */
+    if(DUAL_LANG==='nepali'  && _SCRIPT_RANGES.nepali.re.test(text))  msgs.push('⚠️ 偵測到尼泊爾文(天城文)字元，混入主要語言欄位');
+    if(DUAL_LANG==='bengali' && _SCRIPT_RANGES.bengali.re.test(text)) msgs.push('⚠️ 偵測到孟加拉文字元，混入主要語言欄位');
+    /* 主要欄位：偵測次語言對應的貨幣代碼是否誤入
+       尼泊爾樣板 → 主欄出現 NPR 才正確，出現 BDT 警示
+       孟加拉樣板 → 主欄出現 BDT 才正確，出現 NPR 警示 */
+    if(DUAL_LANG==='nepali'  && /\bBDT\b/i.test(text)) msgs.push('⚠️ 偵測到貨幣代碼 BDT，與目前選擇的 '+DUAL_LABEL+' 樣板不符');
+    if(DUAL_LANG==='bengali' && /\bNPR\b/i.test(text)) msgs.push('⚠️ 偵測到貨幣代碼 NPR，與目前選擇的 '+DUAL_LABEL+' 樣板不符');
+    return msgs.join('；');
+  }
+  var other = _otherScriptCheck();
+  var msgs = [];
+  if(other && other.re.test(text)) msgs.push('⚠️ 偵測到'+other.label+'字元，與目前選擇的 '+DUAL_LABEL+' 樣板不符');
+  var otherCur = _otherCurrencyCheck();
+  if(otherCur && otherCur.re.test(text)) msgs.push('⚠️ 偵測到貨幣代碼 '+otherCur.label+'，與目前選擇的 '+DUAL_LABEL+' 樣板不符');
+  return msgs.join('；');
+}
+/* 將語言警示附加在指定輸入元件之後；getText() 取得目前要檢查的文字
+   inputEl 可為 input/textarea，或 contenteditable 的 div（此時用 input 事件 + textContent）
+   isPrimary：true 表示這是主要(英文)欄位，預設 false（次要雙語欄位） */
+function attachLangWarning(inputEl, getText, isPrimary){
+  var warnEl = document.createElement('div');
+  warnEl.style.cssText = 'font-size:11px;color:#e02020;font-weight:700;margin-top:-2px;margin-bottom:2px;display:none;';
+  function refresh(){
+    var msg = _scriptMismatchMsg(getText(), !!isPrimary);
+    if(msg){ warnEl.textContent = msg; warnEl.style.display='block'; inputEl.style.borderColor='#e02020'; }
+    else { warnEl.style.display='none'; inputEl.style.removeProperty('border-color'); }
+  }
+  inputEl.addEventListener('input', refresh);
+  refresh();
+  if(inputEl.nextSibling) inputEl.parentNode.insertBefore(warnEl, inputEl.nextSibling);
+  else inputEl.parentNode.appendChild(warnEl);
+  return warnEl;
+}
+
 /* ── 全域顏色 ── */
 var GCP = ['#000000','#ffffff','#003b24','#006b3f','#00ff84','#ffe600','#ff4444','#169b75','#106b4f','#1a56a0','#b45309','#cc44cc'];
 var GC = {
@@ -522,7 +585,9 @@ function buildRichEditor(html, cb, opts) {
       cb(area.innerHTML);
     });
   }
-  wrap.appendChild(tb); wrap.appendChild(area); return wrap;
+  wrap.appendChild(tb); wrap.appendChild(area);
+  if(opts && opts.langCheck){ attachLangWarning(area, function(){ return area.textContent; }, opts.langCheck==='primary'); }
+  return wrap;
 }
 
 /* ── 無框文字編輯器 ── */
@@ -678,11 +743,11 @@ function buildPlaintextEditor(b) {
 
   var contentLbl=document.createElement('div'); contentLbl.className='flbl'; contentLbl.textContent='內容（選取後可套用顏色／連結）';
   wrap.appendChild(contentLbl);
-  wrap.appendChild(buildRichEditor(d.html||'',function(v){ d.html=v; buildPreview(); }));
+  wrap.appendChild(buildRichEditor(d.html||'',function(v){ d.html=v; buildPreview(); },{langCheck:DUAL?'primary':false}));
   if(DUAL){
     var contentLbl2=document.createElement('div'); contentLbl2.className='flbl'; contentLbl2.style.color='#0891b2'; contentLbl2.textContent='🌐 '+DUAL_LABEL+' 內容';
     wrap.appendChild(contentLbl2);
-    wrap.appendChild(buildRichEditor(pick(d.html||'', d.html2, true),function(v){ d.html2=v; buildPreview(); }));
+    wrap.appendChild(buildRichEditor(pick(d.html||'', d.html2, true),function(v){ d.html2=v; buildPreview(); },{langCheck:true}));
   }
   return wrap;
 }
@@ -1297,6 +1362,7 @@ function buildTableEditor(b) {
 
       cellWrap.appendChild(inp); cellWrap.appendChild(spBtn);
       hg.appendChild(cellWrap);
+      if(DUAL && !isKV) attachLangWarning(inp, function(el){ return function(){ return el.value; }; }(inp), true);
     });
   }
   hg.appendChild(document.createElement('span')); wrap.appendChild(hg);
@@ -1312,6 +1378,7 @@ function buildTableEditor(b) {
       inp2.value=pick(c||'', d.cols2[ci], true);
       inp2.addEventListener('input',(function(dd,c2){return function(){dd.cols2[c2]=this.value;buildPreview();};})(d,ci));
       hg2.appendChild(inp2);
+      attachLangWarning(inp2, function(el){ return function(){ return el.value; }; }(inp2));
     });
     hg2.appendChild(document.createElement('span')); wrap.appendChild(hg2);
   }
@@ -1343,6 +1410,7 @@ function buildTableEditor(b) {
       };})(inp));
       cellWrap.appendChild(inp); cellWrap.appendChild(gBtn);
       cg.appendChild(cellWrap);
+      if(DUAL) attachLangWarning(inp, function(el){ return function(){ return el.value; }; }(inp), true);
     });
     var rd=document.createElement('button'); rd.type='button'; rd.className='row-del'; rd.textContent='✕'; rd.addEventListener('click',(function(dd,ri2){return function(){dd.rows.splice(ri2,1);renderBlocks();};})(d,ri)); cg.appendChild(rd);
     /* ── 複製行按鈕 ── */
@@ -1363,6 +1431,7 @@ function buildTableEditor(b) {
         inp2.value=pick(cell||'', row.cells2&&row.cells2[ci], true);
         inp2.addEventListener('input',(function(r,c){return function(){ if(!r.cells2)r.cells2=[]; r.cells2[c]=this.value; buildPreview(); };})(row,ci));
         cg2.appendChild(inp2);
+        attachLangWarning(inp2, function(el){ return function(){ return el.value; }; }(inp2));
       });
       cg2.appendChild(document.createElement('span'));
       rg.appendChild(cg2);
@@ -1483,10 +1552,14 @@ function buildLinkBtnEditor(b) {
   }
 
   // 按鈕文字
-  wrap.appendChild(row('按鈕文字', inp(d.text, 'text', 'flex:1;min-width:100px;')));
+  var btnTextInp = inp(d.text, 'text', 'flex:1;min-width:100px;');
+  wrap.appendChild(row('按鈕文字', btnTextInp));
+  if(DUAL) attachLangWarning(btnTextInp, function(){ return btnTextInp.value; }, true);
   if(DUAL){
-    var dualRow = row('🌐 '+DUAL_LABEL+' 文字', inp(pick(d.text||'', d.text2, true), 'text2', 'flex:1;min-width:100px;border-color:#0891b2;'));
+    var inp2el = inp(pick(d.text||'', d.text2, true), 'text2', 'flex:1;min-width:100px;border-color:#0891b2;');
+    var dualRow = row('🌐 '+DUAL_LABEL+' 文字', inp2el);
     wrap.appendChild(dualRow);
+    attachLangWarning(inp2el, function(){ return inp2el.value; });
   }
   // 超連結 URL
   wrap.appendChild(row('連結 URL', inp(d.url, 'url', 'flex:1;min-width:140px;font-size:12px;')));
@@ -1647,6 +1720,7 @@ function buildTurnoverEditor(b) {
         var inp=document.createElement('input'); inp.className='finp'; inp.style.fontSize='11px'; inp.value=(d[hKey][i]!=null)?d[hKey][i]:h; inp.placeholder='清空＝隱藏此欄';
         inp.addEventListener('input',function(){ d[hKey][i]=this.value; updateAndPreview(); });
         grid1.appendChild(inp);
+        if(DUAL) attachLangWarning(inp, function(el){ return function(){ return el.value; }; }(inp), !useSec);
       });
       var subLbl2=document.createElement('div'); subLbl2.style.cssText='font-size:11px;color:#888;margin-top:2px;'; subLbl2.textContent='數值列：';
       var grid2=document.createElement('div'); grid2.style.cssText='display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;min-width:0;';
@@ -1654,6 +1728,7 @@ function buildTurnoverEditor(b) {
         var inp=document.createElement('input'); inp.className='finp'; inp.style.fontSize='11px'; inp.value=(d[cKey][i]!=null)?d[cKey][i]:cv; inp.placeholder='清空＝隱藏此欄';
         inp.addEventListener('input',function(){ d[cKey][i]=this.value; updateAndPreview(); });
         grid2.appendChild(inp);
+        if(DUAL) attachLangWarning(inp, function(el){ return function(){ return el.value; }; }(inp), !useSec);
       });
       box.appendChild(subLbl1); box.appendChild(grid1); box.appendChild(subLbl2); box.appendChild(grid2);
       return box;
@@ -1695,6 +1770,7 @@ function buildTurnoverEditor(b) {
       if(show){ ta.focus(); }
     });
     box.appendChild(head); box.appendChild(pre); box.appendChild(ta);
+    if(DUAL) attachLangWarning(ta, function(){ return ta.value || pre.textContent; }, !borderColor);
     return {box:box, pre:pre, ta:ta};
   }
 
@@ -1855,11 +1931,13 @@ function renderBlocks() {
       var i1=document.createElement('input'); i1.className='finp'; i1.value=b.data.text;
       i1.addEventListener('input',(function(bd){return function(){bd.text=this.value;buildPreview();};})(b.data));
       body.appendChild(tmRow); body.appendChild(l1); body.appendChild(i1);
+      if(DUAL) attachLangWarning(i1, function(){ return i1.value; }, true);
       if(DUAL){
         var l1b=document.createElement('div'); l1b.className='flbl'; l1b.style.color='#0891b2'; l1b.textContent='🌐 '+DUAL_LABEL+' 標題';
         var i1b=document.createElement('input'); i1b.className='finp'; i1b.style.borderColor='#0891b2'; i1b.value=pick(b.data.text||'', b.data.text2, true);
         i1b.addEventListener('input',(function(bd){return function(){bd.text2=this.value;buildPreview();};})(b.data));
         body.appendChild(l1b); body.appendChild(i1b);
+        attachLangWarning(i1b, function(){ return i1b.value; });
       }
     }
     else if(b.type==='text'){
@@ -1890,11 +1968,11 @@ function renderBlocks() {
       setListStyle2(b.data.listStyle);
       body.appendChild(lsRow2);
       body.appendChild(buildOuterBorderToggle(b.data));
-      body.appendChild(buildRichEditor(b.data.html||'',(function(bd){return function(v){bd.html=v;buildPreview();};})(b.data),{detectList:true,perLine:true,onListDetected:function(style){ setListStyle2(style); }}));
+      body.appendChild(buildRichEditor(b.data.html||'',(function(bd){return function(v){bd.html=v;buildPreview();};})(b.data),{detectList:true,perLine:true,langCheck:DUAL?'primary':false,onListDetected:function(style){ setListStyle2(style); }}));
       if(DUAL){
         var l2b=document.createElement('div'); l2b.className='flbl'; l2b.style.color='#0891b2'; l2b.textContent='🌐 '+DUAL_LABEL+' 內容';
         body.appendChild(l2b);
-        body.appendChild(buildRichEditor(pick(b.data.html||'', b.data.html2, true),(function(bd){return function(v){bd.html2=v;buildPreview();};})(b.data),{detectList:true,perLine:true,onListDetected:function(style){ setListStyle2(style); }}));
+        body.appendChild(buildRichEditor(pick(b.data.html||'', b.data.html2, true),(function(bd){return function(v){bd.html2=v;buildPreview();};})(b.data),{detectList:true,perLine:true,langCheck:true,onListDetected:function(style){ setListStyle2(style); }}));
       }
     }
     else if(b.type==='terms'){
@@ -1923,11 +2001,13 @@ function renderBlocks() {
       var ta=document.createElement('textarea'); ta.className='finp'; ta.style.minHeight='80px'; ta.value=b.data.text;
       ta.addEventListener('input',(function(bd){return function(){bd.text=this.value;buildPreview();};})(b.data));
       body.appendChild(l3); body.appendChild(alignRow3); body.appendChild(lsRow3); body.appendChild(buildOuterBorderToggle(b.data)); body.appendChild(ta);
+      if(DUAL) attachLangWarning(ta, function(){ return ta.value; }, true);
       if(DUAL){
         var l3b=document.createElement('div'); l3b.className='flbl'; l3b.style.color='#0891b2'; l3b.textContent='🌐 '+DUAL_LABEL+' 條款';
         var ta2=document.createElement('textarea'); ta2.className='finp'; ta2.style.minHeight='80px'; ta2.style.borderColor='#0891b2'; ta2.value=pick(b.data.text||'', b.data.text2, true);
         ta2.addEventListener('input',(function(bd){return function(){bd.text2=this.value;buildPreview();};})(b.data));
         body.appendChild(l3b); body.appendChild(ta2);
+        attachLangWarning(ta2, function(){ return ta2.value; });
       }
     }
     else if(b.type==='table'){ body.appendChild(buildTableEditor(b)); }
